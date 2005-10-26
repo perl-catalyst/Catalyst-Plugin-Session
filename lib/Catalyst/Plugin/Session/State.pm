@@ -5,8 +5,6 @@ package Catalyst::Plugin::Session::State;
 use strict;
 use warnings;
 
-
-
 __PACKAGE__;
 
 __END__

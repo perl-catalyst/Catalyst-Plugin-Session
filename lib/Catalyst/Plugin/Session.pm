@@ -8,142 +8,144 @@ use warnings;
 
 use NEXT;
 use Catalyst::Exception ();
-use Digest ();
-use overload ();
-use List::Util ();
+use Digest              ();
+use overload            ();
+use List::Util          ();
 
 BEGIN {
-	__PACKAGE__->mk_accessors(qw/sessionid session_delete_reason/);
+    __PACKAGE__->mk_accessors(qw/sessionid session_delete_reason/);
 }
 
 sub setup {
-	my $c = shift;
-	
-	$c->NEXT::setup(@_);
-	
-	$c->check_session_plugin_requirements;
-	$c->setup_session;
+    my $c = shift;
 
-	return $c;
+    $c->NEXT::setup(@_);
+
+    $c->check_session_plugin_requirements;
+    $c->setup_session;
+
+    return $c;
 }
 
 sub check_session_plugin_requirements {
-	my $c = shift;
+    my $c = shift;
 
-	unless ( $c->isa("Catalyst::Plugin::Session::State") && $c->isa("Catalyst::Plugin::Session::Store") ) {
-		my $err = (
-			"The Session plugin requires both Session::State " .
-			"and Session::Store plugins to be used as well."
-		);
+    unless ( $c->isa("Catalyst::Plugin::Session::State")
+        && $c->isa("Catalyst::Plugin::Session::Store") )
+    {
+        my $err =
+          (     "The Session plugin requires both Session::State "
+              . "and Session::Store plugins to be used as well." );
 
-		$c->log->fatal($err);
-		Catalyst::Exception->throw($err);
-	}
+        $c->log->fatal($err);
+        Catalyst::Exception->throw($err);
+    }
 }
 
 sub setup_session {
-	my $c = shift;
+    my $c = shift;
 
-	my $cfg = ($c->config->{session} ||= {});
+    my $cfg = ( $c->config->{session} ||= {} );
 
-	%$cfg = (
-		expires        => 7200,
-		verify_address => 1,
-		%$cfg,
-	);
+    %$cfg = (
+        expires        => 7200,
+        verify_address => 1,
+        %$cfg,
+    );
 
-	$c->NEXT::setup_session();
+    $c->NEXT::setup_session();
 }
 
 sub finalize {
-	my $c = shift;
+    my $c = shift;
 
-	if ($c->{session}) {
-		# all sessions are extended at the end of the request
-		my $now = time;
-		@{ $c->{session} }{qw/__updated __expires/} = ($now, $c->config->{session}{expires} + $now);
-		$c->store_session_data( $c->sessionid, $c->{session} );
-	}
+    if ( $c->{session} ) {
 
-	$c->NEXT::finalize(@_);
+        # all sessions are extended at the end of the request
+        my $now = time;
+        @{ $c->{session} }{qw/__updated __expires/} =
+          ( $now, $c->config->{session}{expires} + $now );
+        $c->store_session_data( $c->sessionid, $c->{session} );
+    }
+
+    $c->NEXT::finalize(@_);
 }
 
 sub prepare_action {
     my $c = shift;
 
+    my $ret = $c->NEXT::prepare_action;
 
-	my $ret = $c->NEXT::prepare_action;
-    
-	my $sid = $c->sessionid || return;
+    my $sid = $c->sessionid || return;
 
     $c->log->debug(qq/Found session "$sid"/) if $c->debug;
 
-	my $s = $c->{session} ||= $c->get_session_data($sid);
-	if ( !$s or $s->{__expires} < time ) {
-		# session expired
-		$c->log->debug("Deleting session $sid (expired)") if $c->debug;
-		$c->delete_session("session expired");
-		return $ret;
-	}
+    my $s = $c->{session} ||= $c->get_session_data($sid);
+    if ( !$s or $s->{__expires} < time ) {
 
-	if ( $c->config->{session}{verify_address}
-	  && $c->{session}{__address}
-	  && $c->{session}{__address} ne $c->request->address
-	) {
-		$c->log->warn(
-			"Deleting session $sid due to address mismatch (".
-			$c->{session}{__address} . " != " . $c->request->address . ")",
-		);
-		$c->delete_session("address mismatch");
-		return $ret;
-	}
+        # session expired
+        $c->log->debug("Deleting session $sid (expired)") if $c->debug;
+        $c->delete_session("session expired");
+        return $ret;
+    }
+
+    if (   $c->config->{session}{verify_address}
+        && $c->{session}{__address}
+        && $c->{session}{__address} ne $c->request->address )
+    {
+        $c->log->warn(
+                "Deleting session $sid due to address mismatch ("
+              . $c->{session}{__address} . " != "
+              . $c->request->address . ")",
+        );
+        $c->delete_session("address mismatch");
+        return $ret;
+    }
 }
 
 sub delete_session {
-	my ( $c, $msg ) = @_;
+    my ( $c, $msg ) = @_;
 
-	# delete the session data
-	my $sid = $c->sessionid;
-	$c->delete_session_data($sid);
+    # delete the session data
+    my $sid = $c->sessionid;
+    $c->delete_session_data($sid);
 
-	# reset the values in the context object
-	$c->{session} = undef;
-	$c->sessionid(undef);
-	$c->session_delete_reason($msg);
+    # reset the values in the context object
+    $c->{session} = undef;
+    $c->sessionid(undef);
+    $c->session_delete_reason($msg);
 }
 
 sub session {
-	my $c = shift;
+    my $c = shift;
 
     return $c->{session} if $c->{session};
 
-	my $sid = $c->generate_session_id;
-	$c->sessionid($sid);
+    my $sid = $c->generate_session_id;
+    $c->sessionid($sid);
 
-	$c->log->debug(qq/Created session "$sid"/) if $c->debug;
+    $c->log->debug(qq/Created session "$sid"/) if $c->debug;
 
-	return $c->initialize_session_data;
+    return $c->initialize_session_data;
 }
 
 sub initialize_session_data {
-	my $c = shift;
+    my $c = shift;
 
-	my $now = time;
+    my $now = time;
 
-	return $c->{session} = {
-		__created => $now,
-		__updated => $now,
-		__expires => $now + $c->config->{session}{expires},
+    return $c->{session} = {
+        __created => $now,
+        __updated => $now,
+        __expires => $now + $c->config->{session}{expires},
 
-		($c->config->{session}{verify_address}
-			? (__address => $c->request->address)
-			: ()
-		),
-	};
+        (
+            $c->config->{session}{verify_address}
+            ? ( __address => $c->request->address )
+            : ()
+        ),
+    };
 }
-
-
-
 
 # refactor into Catalyst::Plugin::Session::ID::Weak ?
 
@@ -156,32 +158,30 @@ sub generate_session_id {
 }
 
 my $counter;
-sub session_hash_seed {
-	my $c = shift;
 
-    return join("",
-		++$counter,
-		time,
-        rand,
-        $$,
-		{},
-		overload::StrVal($c),
-    );
+sub session_hash_seed {
+    my $c = shift;
+
+    return join( "", ++$counter, time, rand, $$, {}, overload::StrVal($c), );
 }
 
 my $usable;
+
 sub _find_digest () {
-	unless ($usable) {
-		$usable = List::Util::first(sub { eval { Digest->new($_) } }, qw/SHA-1 MD5 SHA-256/)
-			or Catalyst::Exception->throw(
-				"Could not find a suitable Digest module. Please install " .
-				"Digest::SHA1, Digest::SHA, or Digest::MD5"
-			);
-	}
+    unless ($usable) {
+        $usable = List::Util::first(
+            sub {
+                eval { Digest->new($_) };
+            },
+            qw/SHA-1 MD5 SHA-256/
+          )
+          or Catalyst::Exception->throw(
+                "Could not find a suitable Digest module. Please install "
+              . "Digest::SHA1, Digest::SHA, or Digest::MD5" );
+    }
 
     return Digest->new($usable);
 }
-
 
 __PACKAGE__;
 

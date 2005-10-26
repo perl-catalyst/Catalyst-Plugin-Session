@@ -52,11 +52,11 @@ ok(!$log->called("fatal"), "no fatal error logged either");
 
 cmp_deeply(
 	[ keys %{ $config{session} } ],
-	bag(qw/expire verify_address/),
+	bag(qw/expires verify_address/),
 	"default values for config were populated in successful setup",
 );
 
-%config = (session => { expire => 1234 });
+%config = (session => { expires => 1234 });
 MockCxt->new->setup;
-is($config{session}{expire}, 1234, "user values are not overwritten in config");
+is($config{session}{expires}, 1234, "user values are not overwritten in config");
 

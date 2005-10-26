@@ -29,6 +29,7 @@ $req->set_always(address => "127.0.0.1");
 	sub debug { 0 }
 	sub isa { 1 } # subvert the plugin tests, we're faking them
 	sub get_session_data { \%session }
+	sub store_session_data { }
 	sub delete_session_data { }
 }
 
@@ -36,7 +37,7 @@ $req->set_always(address => "127.0.0.1");
 	my $c = MockCxt->new;
 	$c->setup;
 
-	$c->prepare;
+	$c->prepare_action;
 	ok(!$c->{session}, "without a session ID prepare doesn't load a session");
 }
 
@@ -54,7 +55,7 @@ $req->set_always(address => "127.0.0.1");
 	$c->setup;
 
 	$c->sessionid("the_session");
-	$c->prepare;
+	$c->prepare_action;
 
 	ok($c->{session}, 'session "restored" with session id');
 }
@@ -71,7 +72,7 @@ $req->set_always(address => "127.0.0.1");
 	$c->setup;
 
 	$c->sessionid("the_session");
-	$c->prepare;
+	$c->prepare_action;
 
 	ok(!$c->{session}, "expired sessions are deleted");
 	like($c->session_delete_reason, qr/expire/i, "with appropriate reason");
@@ -90,7 +91,7 @@ $req->set_always(address => "127.0.0.1");
 	$c->setup;
 
 	$c->sessionid("the_session");
-	$c->prepare;
+	$c->prepare_action;
 
 	ok(!$c->{session}, "hijacked sessions are deleted");
 	like($c->session_delete_reason, qr/mismatch/, "with appropriate reason");
@@ -111,7 +112,7 @@ $req->set_always(address => "127.0.0.1");
 	$c->setup;
 
 	$c->sessionid("the_session");
-	$c->prepare;
+	$c->prepare_action;
 
 	ok($c->{session}, "address mismatch is OK if verify_address is disabled");
 }
@@ -124,14 +125,14 @@ $req->set_always(address => "127.0.0.1");
 
 	my $c = MockCxt->new;
 	$c->setup;
-	$c->prepare;
+	$c->prepare_action;
 
 	ok($c->session, "creating a session works");
 	ok($c->sessionid, "session id generated");
 
 	cmp_ok($c->session->{__created}, ">=", $now, "__created time is logical");
 	cmp_ok($c->session->{__updated}, ">=", $now, "__updated time is logical");
-	cmp_ok($c->session->{__expires}, ">=", ($now + $config{session}{expire}), "__expires time is logical");
+	cmp_ok($c->session->{__expires}, ">=", ($now + $config{session}{expires}), "__expires time is logical");
 	is($c->session->{__address}, $c->request->address, "address is also correct");
 
 	cmp_deeply(
@@ -151,7 +152,7 @@ $req->set_always(address => "127.0.0.1");
 		__address => "127.0.0.1",
 	);
 
-	$config{session}{expire} = 2000;
+	$config{session}{expires} = 2000;
 
 	my $c = MockCxt->new;
 	$c->setup;
@@ -159,7 +160,7 @@ $req->set_always(address => "127.0.0.1");
 	my $now = time();
 	
 	$c->sessionid("the_session");
-	$c->prepare;
+	$c->prepare_action;
 	$c->finalize;
 
 	ok($c->{session}, "session is still alive after 1/2 expired and finalized");

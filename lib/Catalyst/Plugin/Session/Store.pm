@@ -5,7 +5,6 @@ package Catalyst::Plugin::Session::Store;
 use strict;
 use warnings;
 
-
 __PACKAGE__;
 
 __END__
