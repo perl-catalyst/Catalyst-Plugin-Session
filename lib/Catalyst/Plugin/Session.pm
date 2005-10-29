@@ -12,6 +12,8 @@ use Digest              ();
 use overload            ();
 use List::Util          ();
 
+our $VERSION = "0.01";
+
 BEGIN {
     __PACKAGE__->mk_accessors(qw/sessionid session_delete_reason/);
 }
