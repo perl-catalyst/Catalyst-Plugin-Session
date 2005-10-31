@@ -5,7 +5,7 @@ package Catalyst::Plugin::Session::Test::Store;
 use strict;
 use warnings;
 
-use Test::More tests => 15;
+use Test::More tests => 19;
 use File::Temp;
 use File::Spec;
 
@@ -112,6 +112,13 @@ sub import {
 
 		__PACKAGE__->setup;
 	}
+
+	use Test::More;
+
+	can_ok($m, "get_session_data");
+	can_ok($m, "store_session_data");
+	can_ok($m, "delete_session_data");
+	can_ok($m, "delete_expired_sessions");
 
 	{
 		package t1; 

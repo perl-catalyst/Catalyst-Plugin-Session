@@ -340,6 +340,19 @@ This value is only populated of C<verify_address> is true in the configuration.
 
 =back
 
+=head1 CAVEATS
+
+C<verify_address> could make your site inaccessible to users who are behind
+load balanced proxies. Some ISPs may give a different IP to each request by the
+same client due to this type of proxying. If addresses are verified these
+users' sessions cannot persist.
+
+To let these users access your site you can either disable address verification
+as a whole, or provide a checkbox in the login dialog that tells the server
+that it's OK for the address of the client to change. When the server sees that
+this box is checked it should delete the C<__address> sepcial key from the
+session hash when the hash is first created.
+
 =cut
 
 
