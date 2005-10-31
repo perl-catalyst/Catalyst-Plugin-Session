@@ -37,7 +37,7 @@ Catalyst::Plugin::Session::Store::Dummy -
 
 =head1 SYNOPSIS
 
-	use Catalyst::Plugin::Session::Store::Dummy;
+    use Catalyst::Plugin::Session::Store::Dummy;
 
 =head1 DESCRIPTION
 

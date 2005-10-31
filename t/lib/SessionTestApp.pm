@@ -23,7 +23,7 @@ sub page : Global {
     my ( $self, $c ) = @_;
     if ( $c->sessionid ) {
         $c->res->output("you are logged in");
-		$c->session->{counter}++;
+        $c->session->{counter}++;
     }
     else {
         $c->res->output("please login");

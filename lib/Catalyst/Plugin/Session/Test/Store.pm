@@ -12,131 +12,142 @@ use File::Spec;
 use Catalyst ();
 
 sub import {
-	shift;
-	my %args = @_;
+    shift;
+    my %args = @_;
 
-	my $backend = $args{backend};
-	my $cfg     = $args{config};
+    my $backend = $args{backend};
+    my $cfg     = $args{config};
 
-	my $p = "Session::Store::$backend";
-	use_ok(my $m = "Catalyst::Plugin::$p");
+    my $p = "Session::Store::$backend";
+    use_ok( my $m = "Catalyst::Plugin::$p" );
 
-	isa_ok(bless({}, $m), "Catalyst::Plugin::Session::Store");
+    isa_ok( bless( {}, $m ), "Catalyst::Plugin::Session::Store" );
 
-	our $restored_session_id;
+    our $restored_session_id;
 
-	{
-		package SessionStoreTest;
-		use Catalyst qw/-Engine=Test Session Session::State/;
-		push our(@ISA), $m;
+    {
 
-		our $VERSION = "0.01";
+        package SessionStoreTest;
+        use Catalyst qw/-Engine=Test Session Session::State/;
+        push our (@ISA), $m;
 
-		use Test::More;
+        our $VERSION = "0.01";
 
-		sub prepare_cookies {
-			my $c = shift;
-			$c->sessionid($restored_session_id) if defined $restored_session_id;
-			$c->NEXT::prepare_cookies(@_);
-		}
+        use Test::More;
 
-		sub create_session : Global {
-			my ( $self, $c ) = @_;
-			ok(!$c->sessionid, "no session id yet");
-			ok($c->session, "session created");
-			ok($c->sessionid, "with a session id");
+        sub prepare_cookies {
+            my $c = shift;
+            $c->sessionid($restored_session_id) if defined $restored_session_id;
+            $c->NEXT::prepare_cookies(@_);
+        }
 
-			$restored_session_id = $c->sessionid;
+        sub create_session : Global {
+            my ( $self, $c ) = @_;
+            ok( !$c->sessionid, "no session id yet" );
+            ok( $c->session,    "session created" );
+            ok( $c->sessionid,  "with a session id" );
 
-			$c->session->{magic} = "møøse";
-		}
+            $restored_session_id = $c->sessionid;
 
-		sub recover_session : Global {
-			my ( $self, $c ) = @_;
-			ok($c->sessionid, "session id exists");
-			is($c->sessionid, $restored_session_id, "and is the one we saved in the last action");
-			ok($c->session, "a session exists");
-			is($c->session->{magic}, "møøse", "and it contains what we put in on the last attempt");
-			$c->delete_session("user logout");
-			$restored_session_id = undef;
-		}
+            $c->session->{magic} = "møøse";
+        }
 
-		sub after_session : Global {
-			my ( $self, $c ) = @_;
-			ok(!$c->sessionid, "no session id");
-			ok(!$c->session->{magic}, "session data not restored");
-			ok(!$c->session_delete_reason, "no reason for deletion");
-		}
+        sub recover_session : Global {
+            my ( $self, $c ) = @_;
+            ok( $c->sessionid, "session id exists" );
+            is( $c->sessionid, $restored_session_id,
+                "and is the one we saved in the last action" );
+            ok( $c->session, "a session exists" );
+            is( $c->session->{magic},
+                "møøse",
+                "and it contains what we put in on the last attempt" );
+            $c->delete_session("user logout");
+            $restored_session_id = undef;
+        }
 
-		@{ __PACKAGE__->config->{session} }{ keys %$cfg } = values %$cfg;
-		
-		__PACKAGE__->setup;
-	}
+        sub after_session : Global {
+            my ( $self, $c ) = @_;
+            ok( !$c->sessionid,             "no session id" );
+            ok( !$c->session->{magic},      "session data not restored" );
+            ok( !$c->session_delete_reason, "no reason for deletion" );
+        }
 
-	{
-		package SessionStoreTest2;
-		use Catalyst qw/-Engine=Test Session Session::State/;
-		push our(@ISA), $m;
+        @{ __PACKAGE__->config->{session} }{ keys %$cfg } = values %$cfg;
 
-		our $VERSION = "123";
+        __PACKAGE__->setup;
+    }
 
-		use Test::More;
+    {
 
-		sub prepare_cookies {
-			my $c = shift;
-			$c->sessionid($restored_session_id) if defined $restored_session_id;
-			$c->NEXT::prepare_cookies(@_);
-		}
+        package SessionStoreTest2;
+        use Catalyst qw/-Engine=Test Session Session::State/;
+        push our (@ISA), $m;
 
-		sub create_session : Global {
-			my ( $self, $c ) = @_;
+        our $VERSION = "123";
 
-			$c->session->{magic} = "møøse";
+        use Test::More;
 
-			$restored_session_id = $c->sessionid;
-		}
+        sub prepare_cookies {
+            my $c = shift;
+            $c->sessionid($restored_session_id) if defined $restored_session_id;
+            $c->NEXT::prepare_cookies(@_);
+        }
 
-		sub recover_session : Global {
-			my ( $self, $c ) = @_;
+        sub create_session : Global {
+            my ( $self, $c ) = @_;
 
-			ok(!$c->sessionid, "no session id");
+            $c->session->{magic} = "møøse";
 
-			is($c->session_delete_reason, "session expired", "reason is that the session expired");
+            $restored_session_id = $c->sessionid;
+        }
 
-			ok(!$c->session->{magic}, "no saved data");
-		}
+        sub recover_session : Global {
+            my ( $self, $c ) = @_;
 
-		__PACKAGE__->config->{session}{expires} = 0;
+            ok( !$c->sessionid, "no session id" );
 
-		@{ __PACKAGE__->config->{session} }{ keys %$cfg } = values %$cfg;
+            is(
+                $c->session_delete_reason,
+                "session expired",
+                "reason is that the session expired"
+            );
 
-		__PACKAGE__->setup;
-	}
+            ok( !$c->session->{magic}, "no saved data" );
+        }
 
-	use Test::More;
+        __PACKAGE__->config->{session}{expires} = 0;
 
-	can_ok($m, "get_session_data");
-	can_ok($m, "store_session_data");
-	can_ok($m, "delete_session_data");
-	can_ok($m, "delete_expired_sessions");
+        @{ __PACKAGE__->config->{session} }{ keys %$cfg } = values %$cfg;
 
-	{
-		package t1; 
-		use Catalyst::Test "SessionStoreTest";
+        __PACKAGE__->setup;
+    }
 
-		get("/create_session");
-		get("/recover_session");
-		get("/after_session");
-	}
+    use Test::More;
 
-	{
-		package t2;
-		use Catalyst::Test "SessionStoreTest2";
+    can_ok( $m, "get_session_data" );
+    can_ok( $m, "store_session_data" );
+    can_ok( $m, "delete_session_data" );
+    can_ok( $m, "delete_expired_sessions" );
 
-		get("/create_session");
-		sleep 1; # let the session expire
-		get("/recover_session");
-	}
+    {
+
+        package t1;
+        use Catalyst::Test "SessionStoreTest";
+
+        get("/create_session");
+        get("/recover_session");
+        get("/after_session");
+    }
+
+    {
+
+        package t2;
+        use Catalyst::Test "SessionStoreTest2";
+
+        get("/create_session");
+        sleep 1;    # let the session expire
+        get("/recover_session");
+    }
 }
 
 __PACKAGE__;
@@ -152,14 +163,14 @@ engines.
 
 =head1 SYNOPSIS
 
-	#!/usr/bin/perl
+    #!/usr/bin/perl
 
-	use Catalyst::Plugin::Session::Test::Store (
-		backend => "FastMmap",
-		config => {
-			storage => "/tmp/foo",
-		},
-	);
+    use Catalyst::Plugin::Session::Test::Store (
+        backend => "FastMmap",
+        config => {
+            storage => "/tmp/foo",
+        },
+    );
 
 =head1 DESCRIPTION
 

@@ -18,8 +18,8 @@ drivers.
 
 =head1 SYNOPSIS
 
-	package Catalyst::Plugin::Session::Store::MyBackend;
-	use base qw/Catalyst::Plugin::Session::Store/;
+    package Catalyst::Plugin::Session::Store::MyBackend;
+    use base qw/Catalyst::Plugin::Session::Store/;
 
 =head1 DESCRIPTION
 

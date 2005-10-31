@@ -6,16 +6,17 @@ my $build = Module::Build->new(
     license            => 'perl',
     module_name        => 'Catalyst::Plugin::Session',
     requires           => {
-        'perl'                      => '5.8.1',
-        'Catalyst'                  => '5.50',
+        'perl'     => '5.8.1',
+        'Catalyst' => '5.50',
     },
-	reccomends         => {
-		# for live_app.t
-		'Test::WWW::Mechanize::Catalyst'    => 0,
-		'Catalyst::Plugin::Session::Cookie' => 0,
-	},
-    create_readme      => 1,
-	sign => 1,
+    reccomends => {
+
+        # for live_app.t
+        'Test::WWW::Mechanize::Catalyst'    => 0,
+        'Catalyst::Plugin::Session::Cookie' => 0,
+    },
+    create_readme => 1,
+    sign          => 1,
 );
 $build->create_build_script;
 

@@ -18,8 +18,8 @@ preservation plugins.
 
 =head1 SYNOPSIS
 
-	package Catalyst::Plugin::Session::State::MyBackend;
-	use base qw/Catalyst::Plugin::Session::State/;
+    package Catalyst::Plugin::Session::State::MyBackend;
+    use base qw/Catalyst::Plugin::Session::State/;
 
 =head1 DESCRIPTION
 
