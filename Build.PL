@@ -9,6 +9,11 @@ my $build = Module::Build->new(
         'perl'                      => '5.8.1',
         'Catalyst'                  => '5.50',
     },
+	reccomends         => {
+		# for live_app.t
+		'Test::WWW::Mechanize::Catalyst'    => 0,
+		'Catalyst::Plugin::Session::Cookie' => 0,
+	},
     create_readme      => 1,
 	sign => 1,
 );
