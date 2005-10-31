@@ -149,8 +149,6 @@ sub initialize_session_data {
     };
 }
 
-# refactor into Catalyst::Plugin::Session::ID::Weak ?
-
 sub generate_session_id {
     my $c = shift;
 
@@ -199,6 +197,29 @@ storage and client side tickets required to maintain session data.
 =head1 SYNOPSIS
 
     use Catalyst qw/Session Session::Store::FastMmap Session::State::Cookie/;
+
+    sub add_item : Local {
+        my ( $self, $c ) = @_;
+
+        my $item_id = $c->req->param("item");
+
+        # $c->session is stored across requests, so
+        # other actions will see these values
+
+        push @{ $c->session->{items} }, $item_id;
+
+        $c->forward("MyView");
+    }
+
+    sub display_items : Local {
+        my ( $self, $c ) = @_;
+
+        # values in $c->session are restored
+        $c->stash->{items_to_display} =
+            [ map { MyModel->retrieve($_) } @{ $c->session->{items} } ];
+
+        $c->forward("MyView");
+    }
 
 =head1 DESCRIPTION
 
@@ -285,13 +306,73 @@ which will be saved in C<session_delete_reason> if provided.
 This method will initialize the internal structure of the session, and is
 called by the C<session> method if appropriate.
 
+=item generate_session_id
+
+This method will return a string that can be used as a session ID. It is
+supposed to be a reasonably random string with enough bits to prevent
+collision. It basically takes C<session_hash_seed> and hashes it using SHA-1,
+MD5 or SHA-256, depending on the availibility of these modules.
+
+=item session_hash_seed
+
+This method is actually rather internal to generate_session_id, but should be
+overridable in case you want to provide more random data.
+
+Currently it returns a concatenated string which contains:
+
+=over 4
+
+=item *
+
+A counter
+
+=item *
+
+The current time
+
+=item *
+
+One value from C<rand>.
+
+=item *
+
+The stringified value of a newly allocated hash reference
+
+=item *
+
+The stringified value of the Catalyst context object
+
+=back
+
+In the hopes that those combined values are entropic enough for most uses. If
+this is not the case you can replace C<session_hash_seed> with e.g.
+
+    sub session_hash_seed {
+        open my $fh, "<", "/dev/random";
+        read $fh, my $bytes, 20;
+        close $fh;
+        return $bytes;
+    }
+
+Or even more directly, replace C<generate_session_id>:
+
+    sub generate_session_id {
+        open my $fh, "<", "/dev/random";
+        read $fh, my $bytes, 20;
+        close $fh;
+        return unpack("H*", $bytes);
+    }
+
+Also have a look at L<Crypt::Random> and the various openssl bindings - these
+modules provide APIs for cryptographically secure random data.
+
 =back
 
 =head1 CONFIGURATION
 
-	$c->config->{session} = {
-		expires => 1234,
-	};
+    $c->config->{session} = {
+        expires => 1234,
+    };
 
 All configuation parameters are provided in a hash reference under the
 C<session> key in the configuration hash.
