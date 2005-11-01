@@ -7,7 +7,7 @@ my $build = Module::Build->new(
     module_name        => 'Catalyst::Plugin::Session',
     requires           => {
         'perl'     => '5.8.1',
-        'Catalyst' => '5.50',
+        'Catalyst' => '5.49',
     },
     reccomends => {
 
