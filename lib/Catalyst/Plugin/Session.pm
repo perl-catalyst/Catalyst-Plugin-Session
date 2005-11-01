@@ -183,6 +183,18 @@ sub _find_digest () {
     return Digest->new($usable);
 }
 
+sub dump_these {
+    my $c = shift;
+
+    (
+        $c->NEXT::dump_these(),
+
+        $c->sessionid
+        ? ( [ "Session ID" => $c->sessionid ], [ Session => $c->session ], )
+        : ()
+    );
+}
+
 __PACKAGE__;
 
 __END__
@@ -365,6 +377,11 @@ Or even more directly, replace C<generate_session_id>:
 
 Also have a look at L<Crypt::Random> and the various openssl bindings - these
 modules provide APIs for cryptographically secure random data.
+
+=item dump_these
+
+See L<Catalyst/dump_these> - ammends the session data structure to the list of
+dumped objects if session ID is defined.
 
 =back
 
