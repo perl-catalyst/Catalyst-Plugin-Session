@@ -10,7 +10,6 @@ use NEXT;
 use Catalyst::Exception ();
 use Digest              ();
 use overload            ();
-use List::Util          ();
 
 our $VERSION = "0.01";
 
@@ -169,12 +168,14 @@ my $usable;
 
 sub _find_digest () {
     unless ($usable) {
-        $usable = List::Util::first(
-            sub {
-                eval { Digest->new($_) };
-            },
-            qw/SHA-1 MD5 SHA-256/
-          )
+        foreach my $alg (qw/SHA-1 MD5 SHA-256/) {
+            eval {
+				my $obj = Digest->new($alg);
+				$usable = $alg;
+				return $obj;
+			}
+        }
+        $usable
           or Catalyst::Exception->throw(
                 "Could not find a suitable Digest module. Please install "
               . "Digest::SHA1, Digest::SHA, or Digest::MD5" );
