@@ -32,19 +32,22 @@ reason only.
 
 =head1 WRITING STATE PLUGINS
 
-To write a session state plugin you usually need to extend C<finalize> and
-C<prepare> (or e.g. C<prepare_action>) to do two things:
+To write a session state plugin you usually need to extend two methods:
 
 =over 4
 
-=item *
+=item prepare_(action|cookies|whatever)
 
-Set C<sessionid> (accessor) at B<prepare> time using data in the request
+Set C<sessionid> (accessor) at B<prepare> time using data in the request.
 
-=item *
+Note that this must happen B<before> other C<prepare_action> instances, in
+order to get along with L<Catalyst::Plugin::Session>. Overriding
+C<prepare_cookies> is probably the stablest approach.
 
-Modify the response at B<finalize> to include the session ID if C<sessionid> is
-defined.
+=item finalize
+
+Modify the response at to include the session ID if C<sessionid> is defined,
+using whatever scheme you use. For example, set a cookie, 
 
 =back
 

@@ -384,6 +384,26 @@ dumped objects if session ID is defined.
 
 =back
 
+=head1 USING SESSIONS DURING PREPARE
+
+The earliest point in time at which you may use the session data is after
+L<Catalyst::Plugin::Session>'s C<prepare_action> has finished.
+
+State plugins must set $c->session ID before C<prepare_action>, and during
+C<prepare_action> L<Catalyst::Plugin::Session> will actually load the data from
+the store.
+
+	sub prepare_action {
+		my $c = shift;
+
+		# don't touch $c->session yet!
+		
+		$c->NEXT::prepare_action( @_ );
+
+		$c->session;  # this is OK
+		$c->sessionid; # this is also OK
+	}
+
 =head1 CONFIGURATION
 
     $c->config->{session} = {
