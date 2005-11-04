@@ -75,33 +75,31 @@ sub finalize {
 sub prepare_action {
     my $c = shift;
 
-    my $ret = $c->NEXT::prepare_action;
+    if ( my $sid = $c->sessionid ) {
+        $c->log->debug(qq/Found session "$sid"/) if $c->debug;
 
-    my $sid = $c->sessionid || return;
+        my $s = $c->{session} ||= $c->get_session_data($sid);
+        if ( !$s or $s->{__expires} < time ) {
 
-    $c->log->debug(qq/Found session "$sid"/) if $c->debug;
+            # session expired
+            $c->log->debug("Deleting session $sid (expired)") if $c->debug;
+            $c->delete_session("session expired");
+        }
 
-    my $s = $c->{session} ||= $c->get_session_data($sid);
-    if ( !$s or $s->{__expires} < time ) {
-
-        # session expired
-        $c->log->debug("Deleting session $sid (expired)") if $c->debug;
-        $c->delete_session("session expired");
-        return $ret;
+        elsif (   $c->config->{session}{verify_address}
+            && $c->{session}{__address}
+            && $c->{session}{__address} ne $c->request->address )
+        {
+            $c->log->warn(
+                    "Deleting session $sid due to address mismatch ("
+                  . $c->{session}{__address} . " != "
+                  . $c->request->address . ")",
+            );
+            $c->delete_session("address mismatch");
+        }
     }
 
-    if (   $c->config->{session}{verify_address}
-        && $c->{session}{__address}
-        && $c->{session}{__address} ne $c->request->address )
-    {
-        $c->log->warn(
-                "Deleting session $sid due to address mismatch ("
-              . $c->{session}{__address} . " != "
-              . $c->request->address . ")",
-        );
-        $c->delete_session("address mismatch");
-        return $ret;
-    }
+    $c->NEXT::prepare_action(@_);
 }
 
 sub delete_session {
