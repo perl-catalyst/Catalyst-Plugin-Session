@@ -33,13 +33,15 @@ __END__
 
 =head1 NAME
 
-Catalyst::Plugin::Session::Store::Dummy - 
+Catalyst::Plugin::Session::Store::Dummy - Doesn't really store sessions - useful for tests.
 
 =head1 SYNOPSIS
 
-    use Catalyst::Plugin::Session::Store::Dummy;
+    use Catalyst qw/Session Session::Store::Dummy/;
 
 =head1 DESCRIPTION
+
+This plugin will "store" data in a hash.
 
 =cut
 
