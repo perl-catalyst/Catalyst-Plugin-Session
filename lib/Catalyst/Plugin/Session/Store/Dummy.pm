@@ -43,6 +43,22 @@ Catalyst::Plugin::Session::Store::Dummy - Doesn't really store sessions - useful
 
 This plugin will "store" data in a hash.
 
+=head1 METHODS
+
+See L<Catalyst::Plugin::Session::Store>.
+
+=over 4
+
+=item get_session_data
+
+=item store_session_data
+
+=item delete_session_data
+
+=item delete_expired_sessions
+
+=back
+
 =cut
 
 
