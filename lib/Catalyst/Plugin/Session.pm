@@ -470,6 +470,18 @@ that it's OK for the address of the client to change. When the server sees that
 this box is checked it should delete the C<__address> sepcial key from the
 session hash when the hash is first created.
 
+=back
+
+=head1 AUTHORS
+
+
+
+=head1 COPYRIGHT & LICNESE
+
+	Copyright (c) 2005 the aforementioned authors. All rights
+	reserved. This program is free software; you can redistribute
+	it and/or modify it under the same terms as Perl itself.
+
 =cut
 
 
