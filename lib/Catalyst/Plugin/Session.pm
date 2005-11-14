@@ -76,8 +76,6 @@ sub prepare_action {
     my $c = shift;
 
     if ( my $sid = $c->sessionid ) {
-        $c->log->debug(qq/Found session "$sid"/) if $c->debug;
-
         my $s = $c->{session} ||= $c->get_session_data($sid);
         if ( !$s or $s->{__expires} < time ) {
 
@@ -85,8 +83,7 @@ sub prepare_action {
             $c->log->debug("Deleting session $sid (expired)") if $c->debug;
             $c->delete_session("session expired");
         }
-
-        elsif (   $c->config->{session}{verify_address}
+        elsif ($c->config->{session}{verify_address}
             && $c->{session}{__address}
             && $c->{session}{__address} ne $c->request->address )
         {
@@ -96,6 +93,9 @@ sub prepare_action {
                   . $c->request->address . ")",
             );
             $c->delete_session("address mismatch");
+        }
+        else {
+            $c->log->debug(qq/Restored session "$sid"/) if $c->debug;
         }
     }
 
@@ -168,10 +168,10 @@ sub _find_digest () {
     unless ($usable) {
         foreach my $alg (qw/SHA-1 MD5 SHA-256/) {
             eval {
-				my $obj = Digest->new($alg);
-				$usable = $alg;
-				return $obj;
-			}
+                my $obj = Digest->new($alg);
+                $usable = $alg;
+                return $obj;
+            };
         }
         $usable
           or Catalyst::Exception->throw(
