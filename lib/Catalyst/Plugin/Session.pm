@@ -472,7 +472,10 @@ session hash when the hash is first created.
 
 =head1 AUTHORS
 
-
+Andy Grundman
+Christian Hansen
+Yuval Kogman, C<nothingmuch@woobling.org>
+Sebastian Riedel
 
 =head1 COPYRIGHT & LICNESE
 
