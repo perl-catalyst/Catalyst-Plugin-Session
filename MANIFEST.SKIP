@@ -24,3 +24,6 @@
 \#$
 \b\.#
 ^..*\.sw[po]$
+
+# prereq tests may fail due to optionals
+99_prereq\.t$

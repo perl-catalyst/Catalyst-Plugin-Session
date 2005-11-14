@@ -9,7 +9,11 @@ my $build = Module::Build->new(
         'perl'             => '5.8.1',
         'Catalyst'         => '5.49',
         'Test::MockObject' => '1.01',
+		'Digest'           => 0,
+		'File::Temp'       => 0,
+		'File::Spec'       => 0,
         'Test::Deep'       => 0,
+		'Test::More'       => 0,
     },
     reccomends => {
 
