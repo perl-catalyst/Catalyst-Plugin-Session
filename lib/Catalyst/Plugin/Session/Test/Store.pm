@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+﻿#!/usr/bin/perl
 
 package Catalyst::Plugin::Session::Test::Store;
 
@@ -28,7 +28,7 @@ sub import {
     {
 
         package SessionStoreTest;
-        use Catalyst qw/-Engine=Test Session Session::State/;
+        use Catalyst qw/Session Session::State/;
         push our (@ISA), $m;
 
         our $VERSION = "0.01";
@@ -80,7 +80,7 @@ sub import {
     {
 
         package SessionStoreTest2;
-        use Catalyst qw/-Engine=Test Session Session::State/;
+        use Catalyst qw/Session Session::State/;
         push our (@ISA), $m;
 
         our $VERSION = "123";
