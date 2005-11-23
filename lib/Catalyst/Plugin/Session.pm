@@ -11,7 +11,7 @@ use Catalyst::Exception ();
 use Digest              ();
 use overload            ();
 
-our $VERSION = "0.01";
+our $VERSION = "0.02";
 
 BEGIN {
     __PACKAGE__->mk_accessors(qw/sessionid session_delete_reason/);
@@ -438,7 +438,7 @@ the store.
 		my $c = shift;
 
 		# don't touch $c->session yet!
-		
+
 		$c->NEXT::prepare_action( @_ );
 
 		$c->session;  # this is OK
