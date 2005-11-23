@@ -203,7 +203,7 @@ __END__
 =head1 NAME
 
 Catalyst::Plugin::Session - Generic Session plugin - ties together server side
-storage and client side tickets required to maintain session data.
+storage and client side state required to maintain session data.
 
 =head1 SYNOPSIS
 
