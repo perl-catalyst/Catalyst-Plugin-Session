@@ -518,7 +518,7 @@ Christian Hansen
 Yuval Kogman, C<nothingmuch@woobling.org>
 Sebastian Riedel
 
-=head1 COPYRIGHT & LICNESE
+=head1 COPYRIGHT & LICENSE
 
 	Copyright (c) 2005 the aforementioned authors. All rights
 	reserved. This program is free software; you can redistribute
