@@ -3,9 +3,10 @@
 use strict;
 use warnings;
 
-use Test::More tests => 19;
+use Test::More tests => 20;
 use Test::MockObject;
 use Test::Deep;
+use Test::Exception;
 
 my $m;
 BEGIN { use_ok( $m = "Catalyst::Plugin::Session" ) }
@@ -16,7 +17,7 @@ my $req      = Test::MockObject->new;
 my @mock_isa = ();
 my %session;
 
-$log->set_true(qw/fatal warn/);
+$log->set_true(qw/fatal warn error/);
 
 $req->set_always( address => "127.0.0.1" );
 
@@ -40,7 +41,7 @@ $req->set_always( address => "127.0.0.1" );
     $c->setup;
 
     $c->prepare_action;
-    ok( !$c->{session}, "without a session ID prepare doesn't load a session" );
+    ok( !$c->_session, "without a session ID prepare doesn't load a session" );
 }
 
 {
@@ -56,10 +57,10 @@ $req->set_always( address => "127.0.0.1" );
     my $c = MockCxt->new;
     $c->setup;
 
-    $c->sessionid("the_session");
+    $c->sessionid("decafbad");
     $c->prepare_action;
 
-    ok( $c->{session}, 'session "restored" with session id' );
+    ok( $c->_session, 'session "restored" with session id' );
 }
 
 {
@@ -73,10 +74,10 @@ $req->set_always( address => "127.0.0.1" );
     my $c = MockCxt->new;
     $c->setup;
 
-    $c->sessionid("the_session");
+    $c->sessionid("decafbad");
     $c->prepare_action;
 
-    ok( !$c->{session}, "expired sessions are deleted" );
+    ok( !$c->_session, "expired sessions are deleted" );
     like( $c->session_delete_reason, qr/expire/i, "with appropriate reason" );
     ok( !$c->sessionid, "sessionid is also cleared" );
 }
@@ -92,10 +93,10 @@ $req->set_always( address => "127.0.0.1" );
     my $c = MockCxt->new;
     $c->setup;
 
-    $c->sessionid("the_session");
+    $c->sessionid("decafbad");
     $c->prepare_action;
 
-    ok( !$c->{session}, "hijacked sessions are deleted" );
+    ok( !$c->_session, "hijacked sessions are deleted" );
     like( $c->session_delete_reason, qr/mismatch/, "with appropriate reason" );
     ok( !$c->sessionid, "sessionid is also cleared" );
 }
@@ -113,10 +114,10 @@ $req->set_always( address => "127.0.0.1" );
     my $c = MockCxt->new;
     $c->setup;
 
-    $c->sessionid("the_session");
+    $c->sessionid("decafbad");
     $c->prepare_action;
 
-    ok( $c->{session}, "address mismatch is OK if verify_address is disabled" );
+    ok( $c->_session, "address mismatch is OK if verify_address is disabled" );
 }
 
 {
@@ -144,7 +145,7 @@ $req->set_always( address => "127.0.0.1" );
         $c->request->address, "address is also correct" );
 
     cmp_deeply(
-        [ keys %{ $c->{session} } ],
+        [ keys %{ $c->_session } ],
         bag(qw/__expires __created __updated __address/),
         "initial keys in session are all there",
     );
@@ -165,11 +166,11 @@ $req->set_always( address => "127.0.0.1" );
 
     my $now = time();
 
-    $c->sessionid("the_session");
+    $c->sessionid("decafbad");
     $c->prepare_action;
     $c->finalize;
 
-    ok( $c->{session},
+    ok( $c->_session,
         "session is still alive after 1/2 expired and finalized" );
 
     cmp_ok(
@@ -178,5 +179,9 @@ $req->set_always( address => "127.0.0.1" );
         $now + 2000,
         "session expires time extended"
     );
+
+	dies_ok {
+		$c->sessionid("user:foo");
+	} "can't set invalid sessionid string";
 }
 

@@ -14,7 +14,7 @@ use overload            ();
 our $VERSION = "0.02";
 
 BEGIN {
-    __PACKAGE__->mk_accessors(qw/sessionid session_delete_reason/);
+    __PACKAGE__->mk_accessors(qw/_sessionid _session session_delete_reason/);
 }
 
 sub setup {
@@ -60,13 +60,13 @@ sub setup_session {
 sub finalize {
     my $c = shift;
 
-    if ( $c->{session} ) {
+    if ( my $session_data = $c->_session ) {
 
         # all sessions are extended at the end of the request
         my $now = time;
-        @{ $c->{session} }{qw/__updated __expires/} =
+        @{ $session_data }{qw/__updated __expires/} =
           ( $now, $c->config->{session}{expires} + $now );
-        $c->store_session_data( $c->sessionid, $c->{session} );
+        $c->store_session_data( $c->sessionid, $session_data );
     }
 
     $c->NEXT::finalize(@_);
@@ -76,20 +76,21 @@ sub prepare_action {
     my $c = shift;
 
     if ( my $sid = $c->sessionid ) {
-        my $s = $c->{session} ||= $c->get_session_data($sid);
-        if ( !$s or $s->{__expires} < time ) {
+		no warnings 'uninitialized'; # ne __address
+
+        my $session_data = $c->_session || $c->_session( $c->get_session_data($sid) );
+        if ( !$session_data or $session_data->{__expires} < time ) {
 
             # session expired
             $c->log->debug("Deleting session $sid (expired)") if $c->debug;
             $c->delete_session("session expired");
         }
         elsif ($c->config->{session}{verify_address}
-            && $c->{session}{__address}
-            && $c->{session}{__address} ne $c->request->address )
+            && $session_data->{__address} ne $c->request->address )
         {
             $c->log->warn(
                     "Deleting session $sid due to address mismatch ("
-                  . $c->{session}{__address} . " != "
+                  . $session_data->{__address} . " != "
                   . $c->request->address . ")",
             );
             $c->delete_session("address mismatch");
@@ -110,22 +111,44 @@ sub delete_session {
     $c->delete_session_data($sid);
 
     # reset the values in the context object
-    $c->{session} = undef;
-    $c->sessionid(undef);
+    $c->_session(undef);
+    $c->_sessionid(undef);
     $c->session_delete_reason($msg);
+}
+
+sub sessionid {
+	my $c = shift;
+
+	if ( @_ ) {
+		if ( $c->validate_session_id( my $sid = shift ) ) {
+			return $c->_sessionid( $sid );
+		} else {
+			my $err = "Tried to set invalid session ID '$sid'";
+			$c->log->error( $err );
+			Catalyst::Exception->throw( $err );
+		}
+	}
+
+	return $c->_sessionid;
+}
+
+sub validate_session_id {
+	my ( $c, $sid ) = @_;
+
+	$sid =~ /^[a-f\d]+$/i;
 }
 
 sub session {
     my $c = shift;
 
-    return $c->{session} if $c->{session};
+    $c->_session || do {
+		my $sid = $c->generate_session_id;
+		$c->sessionid($sid);
 
-    my $sid = $c->generate_session_id;
-    $c->sessionid($sid);
+		$c->log->debug(qq/Created session "$sid"/) if $c->debug;
 
-    $c->log->debug(qq/Created session "$sid"/) if $c->debug;
-
-    return $c->initialize_session_data;
+		$c->initialize_session_data;
+	};
 }
 
 sub initialize_session_data {
@@ -133,7 +156,7 @@ sub initialize_session_data {
 
     my $now = time;
 
-    return $c->{session} = {
+    return $c->_session({
         __created => $now,
         __updated => $now,
         __expires => $now + $c->config->{session}{expires},
@@ -143,7 +166,7 @@ sub initialize_session_data {
             ? ( __address => $c->request->address )
             : ()
         ),
-    };
+    });
 }
 
 sub generate_session_id {
@@ -372,6 +395,13 @@ overridable in case you want to provide more random data.
 
 Currently it returns a concatenated string which contains:
 
+=item validate_session_id SID
+
+Make sure a session ID is of the right format.
+
+This currently ensures that the session ID string is any amount of case
+insensitive hexadecimal characters.
+
 =over 4
 
 =item *
@@ -484,7 +514,7 @@ is deleted.
 =item __updated
 
 The last time a session was saved. This is the value of
-C<< $c->{session}{__expires} - $c->config->{session}{expires} >>.
+C<< $c->session->{__expires} - $c->config->session->{expires} >>.
 
 =item __created
 
