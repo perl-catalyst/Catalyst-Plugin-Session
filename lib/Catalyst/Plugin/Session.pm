@@ -463,9 +463,8 @@ hours).
 
 =item verify_address
 
-When false, C<< $c->request->address >> will be checked at prepare time. If it
-is not the same as the address that initiated the session, the session is
-deleted.
+When true, C<<$c->request->address>> will be checked at prepare time. If it is
+not the same as the address that initiated the session, the session is deleted.
 
 =back
 
@@ -494,7 +493,7 @@ The time when the session was first created.
 =item __address
 
 The value of C<< $c->request->address >> at the time the session was created.
-This value is only populated of C<verify_address> is true in the configuration.
+This value is only populated if C<verify_address> is true in the configuration.
 
 =back
 
