@@ -542,10 +542,19 @@ session hash when the hash is first created.
 
 =head1 AUTHORS
 
-Andy Grundman
-Christian Hansen
-Yuval Kogman, C<nothingmuch@woobling.org>
-Sebastian Riedel
+=over 4
+
+=item Andy Grundman
+
+=item Christian Hansen
+
+=item Yuval Kogman, C<nothingmuch@woobling.org> (current maintainer)
+
+=item Sebastian Riedel
+
+=back
+
+And countless other contributers from #catalyst. Thanks guys!
 
 =head1 COPYRIGHT & LICENSE
 
