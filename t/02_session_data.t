@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 20;
+use Test::More tests => 25;
 use Test::MockObject;
 use Test::Deep;
 use Test::Exception;
@@ -179,9 +179,43 @@ $req->set_always( address => "127.0.0.1" );
         $now + 2000,
         "session expires time extended"
     );
+}
+
+{
+    my $c = MockCxt->new;
+    $c->setup;
 
 	dies_ok {
 		$c->sessionid("user:foo");
 	} "can't set invalid sessionid string";
 }
 
+{
+    %session = (
+        %session,
+        __expire_keys => {
+            foo => time - 1000,
+            bar => time + 1000,
+        },
+        foo => 1,
+        bar => 2,
+        gorch => 3,
+    );
+
+    my $c = MockCxt->new;
+    $c->setup;
+
+    $c->sessionid("decafbad");
+    $c->prepare_action;
+    $c->finalize;
+
+    ok( !$c->session->{foo}, "foo was deleted, expired");
+    ok( $c->session->{bar}, "bar not deleted - still valid");
+    ok( $c->session->{gorch}, "gorch not deleted - no expiry");
+
+    is_deeply( [ sort keys %{ $c->session->{__expire_keys} } ], [qw/bar/], "expiry entry only for bar");
+
+    $c->session_expire_key( gorch => 10 );
+
+    is_deeply( [ sort keys %{ $c->session->{__expire_keys} } ], [qw/bar gorch/], "expiry entries for bar and gorch");
+}

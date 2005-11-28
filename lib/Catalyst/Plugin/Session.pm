@@ -75,6 +75,14 @@ sub finalize {
 sub prepare_action {
     my $c = shift;
 
+    $c->_load_session;
+
+    $c->NEXT::prepare_action(@_);
+}
+
+sub _load_session {
+    my $c = shift;
+
     if ( my $sid = $c->sessionid ) {
 		no warnings 'uninitialized'; # ne __address
 
@@ -98,9 +106,22 @@ sub prepare_action {
         else {
             $c->log->debug(qq/Restored session "$sid"/) if $c->debug;
         }
-    }
 
-    $c->NEXT::prepare_action(@_);
+        $c->_expire_ession_keys;
+
+    }
+}
+
+sub _expire_ession_keys {
+    my ( $c, $data ) = @_;
+
+    my $now = time;
+
+    my $expiry = ($data || $c->_session || {})->{__expire_keys} || {};
+    foreach my $key (grep { $expiry->{$_} < $now } keys %$expiry ) {
+        delete $c->_session->{$key};
+        delete $expiry->{$key};
+    }
 }
 
 sub delete_session {
@@ -149,6 +170,13 @@ sub session {
 
 		$c->initialize_session_data;
 	};
+}
+
+sub session_expire_key {
+    my ( $c, %keys ) = @_;
+
+    my $now = time;
+    @{ $c->session->{__expire_keys} }{keys %keys} = map { $now + $_ } values %keys;
 }
 
 sub initialize_session_data {
@@ -338,6 +366,24 @@ C<address mismatch>
 C<session expired>
 
 =back
+
+=item session_expire_key $key, $ttl
+
+Mark a key to expire at a certain time (only useful when shorter than the
+expiry time for the whole session).
+
+For example:
+
+    __PACKAGE__->config->{session}{expires} = 1000000000000; # forever
+
+    # later
+
+    $c->session_expire_key( __user => 3600 );
+
+Will make the session data survive, but the user will still be logged out after
+an hour.
+
+Note that these values are not auto extended.
 
 =back
 
