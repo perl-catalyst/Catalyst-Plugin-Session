@@ -66,6 +66,7 @@ sub finalize {
         my $now = time;
         @{ $session_data }{qw/__updated __expires/} =
           ( $now, $c->config->{session}{expires} + $now );
+        delete @{ $session_data->{__flash} }{ @{ delete $session_data->{__flash_stale_keys} || [] } };
         $c->store_session_data( $c->sessionid, $session_data );
     }
 
@@ -106,8 +107,9 @@ sub _load_session {
         else {
             $c->log->debug(qq/Restored session "$sid"/) if $c->debug;
         }
-
+       
         $c->_expire_ession_keys;
+        $session_data->{__flash_stale_keys} = [ keys %{ $session_data->{__flash} } ]
 
     }
 }
@@ -170,6 +172,11 @@ sub session {
 
 		$c->initialize_session_data;
 	};
+}
+
+sub flash {
+    my $c = shift;
+    return $c->session->{__flash} ||= {};
 }
 
 sub session_expire_key {
