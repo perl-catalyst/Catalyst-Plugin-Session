@@ -40,7 +40,7 @@ $req->set_always( address => "127.0.0.1" );
     my $c = MockCxt->new;
     $c->setup;
 
-    $c->prepare_action;
+    $c->_load_session;
     ok( !$c->_session, "without a session ID prepare doesn't load a session" );
 }
 
@@ -58,7 +58,7 @@ $req->set_always( address => "127.0.0.1" );
     $c->setup;
 
     $c->sessionid("decafbad");
-    $c->prepare_action;
+    $c->_load_session;
 
     ok( $c->_session, 'session "restored" with session id' );
 }
@@ -75,7 +75,7 @@ $req->set_always( address => "127.0.0.1" );
     $c->setup;
 
     $c->sessionid("decafbad");
-    $c->prepare_action;
+    $c->_load_session;
 
     ok( !$c->_session, "expired sessions are deleted" );
     like( $c->session_delete_reason, qr/expire/i, "with appropriate reason" );
@@ -94,7 +94,7 @@ $req->set_always( address => "127.0.0.1" );
     $c->setup;
 
     $c->sessionid("decafbad");
-    $c->prepare_action;
+    $c->_load_session;
 
     ok( !$c->_session, "hijacked sessions are deleted" );
     like( $c->session_delete_reason, qr/mismatch/, "with appropriate reason" );
@@ -115,7 +115,7 @@ $req->set_always( address => "127.0.0.1" );
     $c->setup;
 
     $c->sessionid("decafbad");
-    $c->prepare_action;
+    $c->_load_session;
 
     ok( $c->_session, "address mismatch is OK if verify_address is disabled" );
 }
@@ -128,7 +128,7 @@ $req->set_always( address => "127.0.0.1" );
 
     my $c = MockCxt->new;
     $c->setup;
-    $c->prepare_action;
+    $c->_load_session;
 
     ok( $c->session,   "creating a session works" );
     ok( $c->sessionid, "session id generated" );
@@ -167,7 +167,7 @@ $req->set_always( address => "127.0.0.1" );
     my $now = time();
 
     $c->sessionid("decafbad");
-    $c->prepare_action;
+    $c->_load_session;
     $c->finalize;
 
     ok( $c->_session,
@@ -206,7 +206,7 @@ $req->set_always( address => "127.0.0.1" );
     $c->setup;
 
     $c->sessionid("decafbad");
-    $c->prepare_action;
+    $c->_load_session;
     $c->finalize;
 
     ok( !$c->session->{foo}, "foo was deleted, expired");

@@ -14,7 +14,7 @@ use overload            ();
 our $VERSION = "0.02";
 
 BEGIN {
-    __PACKAGE__->mk_accessors(qw/_sessionid _session session_delete_reason/);
+    __PACKAGE__->mk_accessors(qw/_sessionid _session _session_delete_reason/);
 }
 
 sub setup {
@@ -73,18 +73,10 @@ sub finalize {
     $c->NEXT::finalize(@_);
 }
 
-sub prepare_action {
-    my $c = shift;
-
-    $c->_load_session;
-
-    $c->NEXT::prepare_action(@_);
-}
-
 sub _load_session {
     my $c = shift;
 
-    if ( my $sid = $c->sessionid ) {
+    if ( my $sid = $c->_sessionid ) {
 		no warnings 'uninitialized'; # ne __address
 
         my $session_data = $c->_session || $c->_session( $c->get_session_data($sid) );
@@ -109,9 +101,12 @@ sub _load_session {
         }
        
         $c->_expire_ession_keys;
-        $session_data->{__flash_stale_keys} = [ keys %{ $session_data->{__flash} } ]
+        $session_data->{__flash_stale_keys} = [ keys %{ $session_data->{__flash} } ];
 
+        return $session_data;
     }
+
+    return undef;
 }
 
 sub _expire_ession_keys {
@@ -130,27 +125,38 @@ sub delete_session {
     my ( $c, $msg ) = @_;
 
     # delete the session data
-    my $sid = $c->sessionid;
+    my $sid = $c->_sessionid || return;
     $c->delete_session_data($sid);
 
     # reset the values in the context object
     $c->_session(undef);
     $c->_sessionid(undef);
-    $c->session_delete_reason($msg);
+    $c->_session_delete_reason($msg);
+}
+
+sub session_delete_reason {
+    my $c = shift;
+
+    $c->_load_session if ( $c->_sessionid && !$c->_session ); # must verify session data
+
+    $c->_session_delete_reason( @_ );
 }
 
 sub sessionid {
 	my $c = shift;
-
+    
 	if ( @_ ) {
 		if ( $c->validate_session_id( my $sid = shift ) ) {
-			return $c->_sessionid( $sid );
+			$c->_sessionid( $sid );
+            return unless defined wantarray;
 		} else {
 			my $err = "Tried to set invalid session ID '$sid'";
 			$c->log->error( $err );
 			Catalyst::Exception->throw( $err );
 		}
 	}
+    
+    $c->_load_session if ( $c->_sessionid && !$c->_session ); # must verify session data
 
 	return $c->_sessionid;
 }
@@ -164,13 +170,13 @@ sub validate_session_id {
 sub session {
     my $c = shift;
 
-    $c->_session || do {
-		my $sid = $c->generate_session_id;
-		$c->sessionid($sid);
+    $c->_session || $c->_load_session || do {
+        my $sid = $c->generate_session_id;
+        $c->sessionid($sid);
 
-		$c->log->debug(qq/Created session "$sid"/) if $c->debug;
+        $c->log->debug(qq/Created session "$sid"/) if $c->debug;
 
-		$c->initialize_session_data;
+        $c->initialize_session_data;
 	};
 }
 
