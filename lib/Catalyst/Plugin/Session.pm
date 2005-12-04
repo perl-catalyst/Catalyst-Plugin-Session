@@ -588,6 +588,8 @@ This value is only populated if C<verify_address> is true in the configuration.
 
 =head1 CAVEATS
 
+=head2 Round the Robin Proxies
+
 C<verify_address> could make your site inaccessible to users who are behind
 load balanced proxies. Some ISPs may give a different IP to each request by the
 same client due to this type of proxying. If addresses are verified these
@@ -598,6 +600,48 @@ as a whole, or provide a checkbox in the login dialog that tells the server
 that it's OK for the address of the client to change. When the server sees that
 this box is checked it should delete the C<__address> sepcial key from the
 session hash when the hash is first created.
+
+=head2 Race Conditions
+
+In this day and age where cleaning detergents and dutch football (not the
+american kind) teams roam the plains in great numbers, requests may happen
+simultaneously. This means that there is some risk of session data being
+overwritten, like this:
+
+=over 4
+
+=item 1.
+
+request a starts, request b starts, with the same session id
+
+=item 2.
+
+session data is loaded in request a
+
+=item 3.
+
+session data is loaded in request b
+
+=item 4.
+
+session data is changed in request a
+
+=item 5.
+
+request a finishes, session data is updated and written to store
+
+=item 6.
+
+request b finishes, session data is updated and written to store, overwriting
+changes by request a
+
+=back
+
+If this is a concern in your application, a soon to be developed locking
+solution is the only safe way to go. This will have a bigger overhead.
+
+For applications where any given user is only making one request at a time this
+plugin should be safe enough.
 
 =head1 AUTHORS
 

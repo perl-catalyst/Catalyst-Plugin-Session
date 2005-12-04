@@ -1,0 +1,12 @@
+Revision history for Perl extension Catalyst::Plugin::Session
+
+0.03
+        - Lazify loading of session data for better performance and less chance
+          of race conditions
+
+0.02    ???
+        - Doc fixes
+        - No more -Engine=Test
+
+0.01    ???
+        - Initial release.
