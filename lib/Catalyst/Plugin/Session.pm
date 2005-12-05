@@ -57,7 +57,6 @@ sub setup_session {
     $c->NEXT::setup_session();
 }
 
-
 sub finalize {
     my $c = shift;
 
@@ -208,10 +207,7 @@ sub session {
     my $c = shift;
 
     $c->_session || $c->_load_session || do {
-        my $sid = $c->generate_session_id;
-        $c->sessionid($sid);
-
-        $c->log->debug(qq/Created session "$sid"/) if $c->debug;
+        $c->create_session_id;
 
         $c->initialize_session_data;
 	};
@@ -219,7 +215,10 @@ sub session {
 
 sub flash {
     my $c = shift;
-    $c->_flash || $c->_load_flash || $c->_flash( {} );
+    $c->_flash || $c->_load_flash || do {
+        $c->create_session_id;
+        $c->_flash( {} );
+    }
 }
 
 sub session_expire_key {
@@ -253,6 +252,18 @@ sub generate_session_id {
     my $digest = $c->_find_digest();
     $digest->add( $c->session_hash_seed() );
     return $digest->hexdigest;
+}
+
+sub create_session_id {
+    my $c = shift;
+
+    if ( !$c->_sessionid ) {
+        my $sid = $c->generate_session_id;
+
+        $c->log->debug(qq/Created session "$sid"/) if $c->debug;
+
+        $c->sessionid($sid);
+    }
 }
 
 my $counter;
