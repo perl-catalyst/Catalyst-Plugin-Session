@@ -363,6 +363,36 @@ requests.
 This method will automatically create a new session and session ID if none
 exists.
 
+=item flash
+
+This is like Ruby on Rails' flash data structure. Think of it as a stash that
+lasts a single redirect, not only a forward.
+
+    sub moose : Local {
+        my ( $self, $c ) = @_;
+
+        $c->flash->{beans} = 10;
+        $c->response->redirect( $c->uri_for("foo") );
+    }
+
+    sub foo : Local {
+        my ( $self, $c ) = @_;
+
+        my $value = $c->flash->{beans};
+
+        # ...
+
+        $c->response->redirect( $c->uri_for("bar") );
+    }
+
+    sub bar : Local {
+        my ( $self, $c ) = @_;
+
+        if ( exists $c->flash->{beans} ) { # false
+        
+        }
+    }
+
 =item session_delete_reason
 
 This accessor contains a string with the reason a session was deleted. Possible
