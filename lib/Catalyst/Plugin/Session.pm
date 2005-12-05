@@ -509,9 +509,11 @@ listed in L</CONFIGURATION>.
 
 =item prepare_action
 
-This methoid is extended, and will restore session data and check it for
-validity if a session id is defined. It assumes that the State plugin will
-populate the C<sessionid> key beforehand.
+This methoid is extended.
+
+It's only effect is if the (off by default) C<flash_to_stash> configuration
+parameter is on - then it will copy the contents of the flash to the stash at
+prepare time.
 
 =item finalize
 
@@ -527,6 +529,11 @@ which will be saved in C<session_delete_reason> if provided.
 
 This method will initialize the internal structure of the session, and is
 called by the C<session> method if appropriate.
+
+=item create_session_id
+
+Creates a new session id using C<generate_session_id> if there is no session ID
+yet.
 
 =item generate_session_id
 
@@ -642,6 +649,12 @@ hours).
 
 When true, C<<$c->request->address>> will be checked at prepare time. If it is
 not the same as the address that initiated the session, the session is deleted.
+
+=item flash_to_stash
+
+This option makes it easier to have actions behave the same whether they were
+forwarded to or redirected to. On prepare time it copies the contents of
+C<flash> (if any) to the stash.
 
 =back
 
