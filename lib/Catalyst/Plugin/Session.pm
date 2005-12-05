@@ -14,7 +14,7 @@ use overload            ();
 our $VERSION = "0.02";
 
 BEGIN {
-    __PACKAGE__->mk_accessors(qw/_sessionid _session _session_delete_reason/);
+    __PACKAGE__->mk_accessors(qw/_sessionid _session _session_delete_reason _flash _flash_stale_keys/);
 }
 
 sub setup {
@@ -60,17 +60,33 @@ sub setup_session {
 sub finalize {
     my $c = shift;
 
+    $c->_save_session;
+    $c->_save_flash;
+
+    $c->NEXT::finalize(@_);
+}
+
+sub _save_session {
+    my $c = shift;
+    
     if ( my $session_data = $c->_session ) {
 
         # all sessions are extended at the end of the request
         my $now = time;
         @{ $session_data }{qw/__updated __expires/} =
           ( $now, $c->config->{session}{expires} + $now );
-        delete @{ $session_data->{__flash} }{ @{ delete $session_data->{__flash_stale_keys} || [] } };
-        $c->store_session_data( $c->sessionid, $session_data );
-    }
 
-    $c->NEXT::finalize(@_);
+        $c->store_session_data( "session:" . $c->sessionid, $session_data );
+    }
+}
+
+sub _save_flash {
+    my $c = shift;
+
+    if ( my $flash_data = $c->_flash ) {
+        delete @{ $flash_data }{ @{ $c->_flash_stale_keys || [] } };
+        $c->store_session_data( "flash:" . $c->sessionid, $flash_data );
+    }
 }
 
 sub _load_session {
@@ -79,7 +95,7 @@ sub _load_session {
     if ( my $sid = $c->_sessionid ) {
 		no warnings 'uninitialized'; # ne __address
 
-        my $session_data = $c->_session || $c->_session( $c->get_session_data($sid) );
+        my $session_data = $c->_session || $c->_session( $c->get_session_data( "session:$sid" ) );
         if ( !$session_data or $session_data->{__expires} < time ) {
 
             # session expired
@@ -101,9 +117,21 @@ sub _load_session {
         }
        
         $c->_expire_ession_keys;
-        $session_data->{__flash_stale_keys} = [ keys %{ $session_data->{__flash} } ];
 
         return $session_data;
+    }
+
+    return undef;
+}
+
+sub _load_flash {
+    my $c = shift;
+
+    if ( my $sid = $c->_sessionid ) {
+        if ( my $flash_data = $c->_flash || $c->_flash( $c->get_session_data("flash:$sid") ) ) {
+            $c->_flash_stale_keys([ keys %$flash_data ]);
+            return $flash_data;
+        }
     }
 
     return undef;
@@ -126,7 +154,7 @@ sub delete_session {
 
     # delete the session data
     my $sid = $c->_sessionid || return;
-    $c->delete_session_data($sid);
+    $c->delete_session_data( "session:$sid" );
 
     # reset the values in the context object
     $c->_session(undef);
@@ -182,7 +210,7 @@ sub session {
 
 sub flash {
     my $c = shift;
-    return $c->session->{__flash} ||= {};
+    $c->_flash || $c->_load_flash || $c->_flash( {} );
 }
 
 sub session_expire_key {

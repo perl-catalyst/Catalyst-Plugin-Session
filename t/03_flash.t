@@ -12,19 +12,18 @@ BEGIN { use_ok( $m = "Catalyst::Plugin::Session" ) }
 
 my $c = Test::MockObject::Extends->new( $m );
 
-$c->set_always( get_session_data => { __expires => time+10000, __updated => time } );
-$c->set_always( config => { session => { expires => 1000000 } } );
+$c->set_always( get_session_data => { } );
+$c->set_true( "store_session_data" );
+$c->set_always( _sessionid => "deadbeef");
 
-$c->sessionid("deadbeef");
-
-$c->_load_session;
+$c->_load_flash;
 
 is_deeply( $c->flash, {}, "nothing in flash");
 
 $c->flash->{foo} = "moose";
 
 $c->finalize;
-$c->_load_session;
+$c->_load_flash;
 
 is_deeply( $c->flash, { foo => "moose" }, "one key in flash" );
 
@@ -33,11 +32,11 @@ $c->flash->{bar} = "gorch";
 is_deeply( $c->flash, { foo => "moose", bar => "gorch" }, "two keys in flash");
 
 $c->finalize;
-$c->_load_session;
+$c->_load_flash;
 
 is_deeply( $c->flash, { bar => "gorch" }, "one key in flash" );
 
 $c->finalize;
-$c->_load_session;
+$c->_load_flash;
 
 is_deeply( $c->flash, {}, "nothing in flash");
