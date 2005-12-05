@@ -57,6 +57,7 @@ sub setup_session {
     $c->NEXT::setup_session();
 }
 
+
 sub finalize {
     my $c = shift;
 
@@ -69,23 +70,31 @@ sub finalize {
 sub _save_session {
     my $c = shift;
     
-    if ( my $session_data = $c->_session ) {
+    if ( my $sid = $c->_sessionid ) {
+        if ( my $session_data = $c->_session ) {
 
-        # all sessions are extended at the end of the request
-        my $now = time;
-        @{ $session_data }{qw/__updated __expires/} =
-          ( $now, $c->config->{session}{expires} + $now );
+            # all sessions are extended at the end of the request
+            my $now = time;
+            @{ $session_data }{qw/__updated __expires/} =
+              ( $now, $c->config->{session}{expires} + $now );
 
-        $c->store_session_data( "session:" . $c->sessionid, $session_data );
+            $c->store_session_data( "session:$sid", $session_data );
+        }
     }
 }
 
 sub _save_flash {
     my $c = shift;
 
-    if ( my $flash_data = $c->_flash ) {
-        delete @{ $flash_data }{ @{ $c->_flash_stale_keys || [] } };
-        $c->store_session_data( "flash:" . $c->sessionid, $flash_data );
+    if ( my $sid = $c->_sessionid ) {
+        if ( my $flash_data = $c->_flash ) {
+            if ( %$flash_data ) { # damn 'my' declarations
+                delete @{ $flash_data }{ @{ $c->_flash_stale_keys || [] } };
+                $c->store_session_data( "flash:$sid", $flash_data );
+            }
+        } else {
+            $c->delete_session_data( "flash:$sid" );
+        }
     }
 }
 
@@ -128,7 +137,7 @@ sub _load_flash {
     my $c = shift;
 
     if ( my $sid = $c->_sessionid ) {
-        if ( my $flash_data = $c->_flash || $c->_flash( $c->get_session_data("flash:$sid") ) ) {
+        if ( my $flash_data = $c->_flash || $c->_flash( $c->get_session_data( "flash:$sid" ) ) ) {
             $c->_flash_stale_keys([ keys %$flash_data ]);
             return $flash_data;
         }
@@ -192,7 +201,7 @@ sub sessionid {
 sub validate_session_id {
 	my ( $c, $sid ) = @_;
 
-	$sid =~ /^[a-f\d]+$/i;
+	$sid and $sid =~ /^[a-f\d]+$/i;
 }
 
 sub session {
