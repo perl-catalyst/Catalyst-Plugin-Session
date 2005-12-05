@@ -57,6 +57,16 @@ sub setup_session {
     $c->NEXT::setup_session();
 }
 
+sub prepare_action {
+    my $c = shift;
+
+    if ( $c->config->{session}{flash_to_stash} and $c->_sessionid and my $flash_data = $c->flash ) {
+        @{ $c->stash }{ keys %$flash_data } = values %$flash_data;
+    }
+
+    $c->NEXT::prepare_action(@_);
+}
+
 sub finalize {
     my $c = shift;
 
