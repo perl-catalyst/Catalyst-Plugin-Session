@@ -290,10 +290,12 @@ sub _find_digest () {
     unless ($usable) {
         foreach my $alg (qw/SHA-1 MD5 SHA-256/) {
             eval {
-                my $obj = Digest->new($alg);
-                $usable = $alg;
-                return $obj;
+                Digest->new($alg);
             };
+            unless ($@) {
+                $usable = $alg;
+                last;
+            }
         }
         $usable
           or Catalyst::Exception->throw(
