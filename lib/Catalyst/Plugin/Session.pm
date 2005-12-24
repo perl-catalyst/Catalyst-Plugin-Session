@@ -10,11 +10,20 @@ use NEXT;
 use Catalyst::Exception ();
 use Digest              ();
 use overload            ();
+use Object::Signature   ();
 
 our $VERSION = "0.02";
 
 BEGIN {
-    __PACKAGE__->mk_accessors(qw/_sessionid _session _session_delete_reason _flash _flash_stale_keys/);
+    __PACKAGE__->mk_accessors(qw/
+        _sessionid
+        _session
+        _session_expires
+        _session_data_sig
+        _session_delete_reason
+        _flash
+        _flash_stale_keys
+    /);
 }
 
 sub setup {
@@ -84,10 +93,15 @@ sub _save_session {
 
             # all sessions are extended at the end of the request
             my $now = time;
-            @{ $session_data }{qw/__updated __expires/} =
-              ( $now, $c->config->{session}{expires} + $now );
+            $c->store_session_data( "expires:$sid" => ( $c->config->{session}{expires} + $now ) );
 
-            $c->store_session_data( "session:$sid", $session_data );
+            my $new_sig = Object::Signature::signature( $session_data );
+
+            no warnings 'uninitialized';
+            if ( $new_sig ne $c->_session_data_sig ) {
+                $session_data->{__updated} = $now;
+                $c->store_session_data( "session:$sid" => $session_data );
+            }
         }
     }
 }
@@ -112,9 +126,11 @@ sub _load_session {
 
     if ( my $sid = $c->_sessionid ) {
 		no warnings 'uninitialized'; # ne __address
+        
+        my ( $session_data, $session_expires ) = $c->get_session_data( "session:$sid", "expires:$sid" );
+        $c->_session( $session_data );
 
-        my $session_data = $c->_session || $c->_session( $c->get_session_data( "session:$sid" ) );
-        if ( !$session_data or $session_data->{__expires} < time ) {
+        if ( !$session_data or $session_expires < time ) {
 
             # session expired
             $c->log->debug("Deleting session $sid (expired)") if $c->debug;
@@ -132,9 +148,9 @@ sub _load_session {
         }
         else {
             $c->log->debug(qq/Restored session "$sid"/) if $c->debug;
+            $c->_session_data_sig( Object::Signature::signature( $session_data ) );
+            $c->_expire_session_keys;
         }
-       
-        $c->_expire_ession_keys;
 
         return $session_data;
     }
@@ -155,7 +171,7 @@ sub _load_flash {
     return undef;
 }
 
-sub _expire_ession_keys {
+sub _expire_session_keys {
     my ( $c, $data ) = @_;
 
     my $now = time;
@@ -246,7 +262,6 @@ sub initialize_session_data {
     return $c->_session({
         __created => $now,
         __updated => $now,
-        __expires => $now + $c->config->{session}{expires},
 
         (
             $c->config->{session}{verify_address}
@@ -288,7 +303,7 @@ my $usable;
 
 sub _find_digest () {
     unless ($usable) {
-        foreach my $alg (qw/SHA-1 MD5 SHA-256/) {
+        foreach my $alg (qw/SHA-1 SHA-256 MD5/) {
             eval {
                 Digest->new($alg);
             };
@@ -669,14 +684,11 @@ are automatically set:
 
 =item __expires
 
-A timestamp whose value is the last second when the session is still valid. If
-a session is restored, and __expires is less than the current time, the session
-is deleted.
+This key no longer exists. This data is now saved elsewhere.
 
 =item __updated
 
-The last time a session was saved. This is the value of
-C<< $c->session->{__expires} - $c->config->session->{expires} >>.
+The last time a session was saved to the store.
 
 =item __created
 

@@ -9,13 +9,15 @@ use warnings;
 my %store;
 
 sub get_session_data {
-    my ( $c, $sid ) = @_;
-    $store{$sid};
+    my ( $c, @keys ) = @_;
+    @store{@keys};
 }
 
 sub store_session_data {
-    my ( $c, $sid, $data ) = @_;
-    $store{$sid} = $data;
+    my $c = shift;
+    my %data = @_;
+
+    @store{ keys %data } = values %data;
 }
 
 sub delete_session_data {
