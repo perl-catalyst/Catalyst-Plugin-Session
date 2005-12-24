@@ -127,7 +127,7 @@ sub _load_session {
     if ( my $sid = $c->_sessionid ) {
 		no warnings 'uninitialized'; # ne __address
         
-        my ( $session_data, $session_expires ) = $c->get_session_data( "session:$sid", "expires:$sid" );
+        my ( $session_data, $session_expires ) = map { $c->get_session_data( "${_}:${sid}" ) } qw/session expires/;
         $c->_session( $session_data );
 
         if ( !$session_data or $session_expires < time ) {
