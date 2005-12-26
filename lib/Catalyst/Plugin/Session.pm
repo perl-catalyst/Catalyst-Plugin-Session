@@ -522,7 +522,7 @@ Note that these values are not auto extended.
 
 =back
 
-=item INTERNAL METHODS
+=head1 INTERNAL METHODS
 
 =over 4
 
