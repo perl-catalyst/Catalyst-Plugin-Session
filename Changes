@@ -5,6 +5,9 @@ Revision history for Perl extension Catalyst::Plugin::Session
           of race conditions
         - support for $c->flash a la Ruby on Rails
         - Fixed bug in sessionid algorithm detection.
+        - Separate __expires from the session data - we write it every time
+        - Lazify saving of session data for better performance and less chance
+          of race conditions
 
 0.02    2005-11-23 09:40:00
         - Doc fixes

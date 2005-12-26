@@ -12,18 +12,20 @@ use Digest              ();
 use overload            ();
 use Object::Signature   ();
 
-our $VERSION = "0.02";
+our $VERSION = "0.03";
 
 BEGIN {
-    __PACKAGE__->mk_accessors(qw/
-        _sessionid
-        _session
-        _session_expires
-        _session_data_sig
-        _session_delete_reason
-        _flash
-        _flash_stale_keys
-    /);
+    __PACKAGE__->mk_accessors(
+        qw/
+          _sessionid
+          _session
+          _session_expires
+          _session_data_sig
+          _session_delete_reason
+          _flash
+          _flash_stale_keys
+          /
+    );
 }
 
 sub setup {
@@ -69,7 +71,10 @@ sub setup_session {
 sub prepare_action {
     my $c = shift;
 
-    if ( $c->config->{session}{flash_to_stash} and $c->_sessionid and my $flash_data = $c->flash ) {
+    if (    $c->config->{session}{flash_to_stash}
+        and $c->_sessionid
+        and my $flash_data = $c->flash )
+    {
         @{ $c->stash }{ keys %$flash_data } = values %$flash_data;
     }
 
@@ -87,18 +92,19 @@ sub finalize {
 
 sub _save_session {
     my $c = shift;
-    
+
     if ( my $sid = $c->_sessionid ) {
         if ( my $session_data = $c->_session ) {
 
             # all sessions are extended at the end of the request
             my $now = time;
-            $c->store_session_data( "expires:$sid" => ( $c->config->{session}{expires} + $now ) );
-
-            my $new_sig = Object::Signature::signature( $session_data );
+            $c->store_session_data(
+                "expires:$sid" => ( $c->config->{session}{expires} + $now ) );
 
             no warnings 'uninitialized';
-            if ( $new_sig ne $c->_session_data_sig ) {
+            if ( Object::Signature::signature($session_data) ne
+                $c->_session_data_sig )
+            {
                 $session_data->{__updated} = $now;
                 $c->store_session_data( "session:$sid" => $session_data );
             }
@@ -110,13 +116,15 @@ sub _save_flash {
     my $c = shift;
 
     if ( my $sid = $c->_sessionid ) {
-        if ( my $flash_data = $c->_flash ) {
-            if ( %$flash_data ) { # damn 'my' declarations
-                delete @{ $flash_data }{ @{ $c->_flash_stale_keys || [] } };
-                $c->store_session_data( "flash:$sid", $flash_data );
-            }
-        } else {
-            $c->delete_session_data( "flash:$sid" );
+        my $flash_data = $c->_flash || {};
+
+        delete @{$flash_data}{ @{ $c->_flash_stale_keys || [] } };
+
+        if (%$flash_data) {    # damn 'my' declarations
+            $c->store_session_data( "flash:$sid", $flash_data );
+        }
+        else {
+            $c->delete_session_data("flash:$sid");
         }
     }
 }
@@ -125,18 +133,22 @@ sub _load_session {
     my $c = shift;
 
     if ( my $sid = $c->_sessionid ) {
-		no warnings 'uninitialized'; # ne __address
-        
-        my ( $session_data, $session_expires ) = map { $c->get_session_data( "${_}:${sid}" ) } qw/session expires/;
-        $c->_session( $session_data );
+        no warnings 'uninitialized';    # ne __address
 
-        if ( !$session_data or $session_expires < time ) {
+        my $session_expires = $c->get_session_data("expires:$sid") || 0;
+
+        if ( $session_expires < time ) {
 
             # session expired
             $c->log->debug("Deleting session $sid (expired)") if $c->debug;
             $c->delete_session("session expired");
+            return;
         }
-        elsif ($c->config->{session}{verify_address}
+
+        my $session_data = $c->get_session_data("session:$sid");
+        $c->_session($session_data);
+
+        if (   $c->config->{session}{verify_address}
             && $session_data->{__address} ne $c->request->address )
         {
             $c->log->warn(
@@ -145,25 +157,27 @@ sub _load_session {
                   . $c->request->address . ")",
             );
             $c->delete_session("address mismatch");
+            return;
         }
-        else {
-            $c->log->debug(qq/Restored session "$sid"/) if $c->debug;
-            $c->_session_data_sig( Object::Signature::signature( $session_data ) );
-            $c->_expire_session_keys;
-        }
+
+        $c->log->debug(qq/Restored session "$sid"/) if $c->debug;
+        $c->_session_data_sig( Object::Signature::signature($session_data) );
+        $c->_expire_session_keys;
 
         return $session_data;
     }
 
-    return undef;
+    return;
 }
 
 sub _load_flash {
     my $c = shift;
 
     if ( my $sid = $c->_sessionid ) {
-        if ( my $flash_data = $c->_flash || $c->_flash( $c->get_session_data( "flash:$sid" ) ) ) {
-            $c->_flash_stale_keys([ keys %$flash_data ]);
+        if ( my $flash_data = $c->_flash
+            || $c->_flash( $c->get_session_data("flash:$sid") ) )
+        {
+            $c->_flash_stale_keys( [ keys %$flash_data ] );
             return $flash_data;
         }
     }
@@ -176,8 +190,8 @@ sub _expire_session_keys {
 
     my $now = time;
 
-    my $expiry = ($data || $c->_session || {})->{__expire_keys} || {};
-    foreach my $key (grep { $expiry->{$_} < $now } keys %$expiry ) {
+    my $expiry = ( $data || $c->_session || {} )->{__expire_keys} || {};
+    foreach my $key ( grep { $expiry->{$_} < $now } keys %$expiry ) {
         delete $c->_session->{$key};
         delete $expiry->{$key};
     }
@@ -188,7 +202,7 @@ sub delete_session {
 
     # delete the session data
     my $sid = $c->_sessionid || return;
-    $c->delete_session_data( "session:$sid" );
+    $c->delete_session_data("${_}:${sid}") for qw/session expires flash/;
 
     # reset the values in the context object
     $c->_session(undef);
@@ -199,34 +213,37 @@ sub delete_session {
 sub session_delete_reason {
     my $c = shift;
 
-    $c->_load_session if ( $c->_sessionid && !$c->_session ); # must verify session data
+    $c->_load_session
+      if ( $c->_sessionid && !$c->_session );    # must verify session data
 
-    $c->_session_delete_reason( @_ );
+    $c->_session_delete_reason(@_);
 }
 
 sub sessionid {
-	my $c = shift;
-    
-	if ( @_ ) {
-		if ( $c->validate_session_id( my $sid = shift ) ) {
-			$c->_sessionid( $sid );
-            return unless defined wantarray;
-		} else {
-			my $err = "Tried to set invalid session ID '$sid'";
-			$c->log->error( $err );
-			Catalyst::Exception->throw( $err );
-		}
-	}
-    
-    $c->_load_session if ( $c->_sessionid && !$c->_session ); # must verify session data
+    my $c = shift;
 
-	return $c->_sessionid;
+    if (@_) {
+        if ( $c->validate_session_id( my $sid = shift ) ) {
+            $c->_sessionid($sid);
+            return unless defined wantarray;
+        }
+        else {
+            my $err = "Tried to set invalid session ID '$sid'";
+            $c->log->error($err);
+            Catalyst::Exception->throw($err);
+        }
+    }
+
+    $c->_load_session
+      if ( $c->_sessionid && !$c->_session );    # must verify session data
+
+    return $c->_sessionid;
 }
 
 sub validate_session_id {
-	my ( $c, $sid ) = @_;
+    my ( $c, $sid ) = @_;
 
-	$sid and $sid =~ /^[a-f\d]+$/i;
+    $sid and $sid =~ /^[a-f\d]+$/i;
 }
 
 sub session {
@@ -236,7 +253,7 @@ sub session {
         $c->create_session_id;
 
         $c->initialize_session_data;
-	};
+    };
 }
 
 sub flash {
@@ -244,14 +261,15 @@ sub flash {
     $c->_flash || $c->_load_flash || do {
         $c->create_session_id;
         $c->_flash( {} );
-    }
+      }
 }
 
 sub session_expire_key {
     my ( $c, %keys ) = @_;
 
     my $now = time;
-    @{ $c->session->{__expire_keys} }{keys %keys} = map { $now + $_ } values %keys;
+    @{ $c->session->{__expire_keys} }{ keys %keys } =
+      map { $now + $_ } values %keys;
 }
 
 sub initialize_session_data {
@@ -259,16 +277,18 @@ sub initialize_session_data {
 
     my $now = time;
 
-    return $c->_session({
-        __created => $now,
-        __updated => $now,
+    return $c->_session(
+        {
+            __created => $now,
+            __updated => $now,
 
-        (
-            $c->config->{session}{verify_address}
-            ? ( __address => $c->request->address )
-            : ()
-        ),
-    });
+            (
+                $c->config->{session}{verify_address}
+                ? ( __address => $c->request->address )
+                : ()
+            ),
+        }
+    );
 }
 
 sub generate_session_id {
@@ -304,18 +324,15 @@ my $usable;
 sub _find_digest () {
     unless ($usable) {
         foreach my $alg (qw/SHA-1 SHA-256 MD5/) {
-            eval {
-                Digest->new($alg);
-            };
-            unless ($@) {
+            if ( eval { Digest->new($alg) } ) {
                 $usable = $alg;
                 last;
             }
         }
-        $usable
-          or Catalyst::Exception->throw(
+        Catalyst::Exception->throw(
                 "Could not find a suitable Digest module. Please install "
-              . "Digest::SHA1, Digest::SHA, or Digest::MD5" );
+              . "Digest::SHA1, Digest::SHA, or Digest::MD5" )
+          unless $usable;
     }
 
     return Digest->new($usable);
