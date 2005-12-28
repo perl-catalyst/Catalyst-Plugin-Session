@@ -1,6 +1,10 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
-0.03
+0.04    2005-12-28 09:42:00
+        - Work around a limitation in Cache::FastMmap - must store only
+          references, while expiration was an NV.
+
+0.03    2005-12-26 10:22:00
         - Lazify loading of session data for better performance and less chance
           of race conditions
         - support for $c->flash a la Ruby on Rails

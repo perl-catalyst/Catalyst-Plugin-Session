@@ -98,8 +98,12 @@ sub _save_session {
 
             # all sessions are extended at the end of the request
             my $now = time;
-            $c->store_session_data(
-                "expires:$sid" => ( $c->config->{session}{expires} + $now ) );
+
+            # the ref is a workaround for FastMmap:
+            # FastMmap can't store values which aren't refs
+            # this yields errors and other great suckage
+            $c->store_session_data( "expires:$sid" =>
+                  ( { expires => $c->config->{session}{expires} + $now } ) );
 
             no warnings 'uninitialized';
             if ( Object::Signature::signature($session_data) ne
@@ -135,7 +139,10 @@ sub _load_session {
     if ( my $sid = $c->_sessionid ) {
         no warnings 'uninitialized';    # ne __address
 
-        my $session_expires = $c->get_session_data("expires:$sid") || 0;
+        # see above for explanation  of the workaround for FastMmap problem
+        my $session_expires =
+          ( $c->get_session_data("expires:$sid") || { expires => 0 } )
+          ->{expires};
 
         if ( $session_expires < time ) {
 
