@@ -12,7 +12,7 @@ use Digest              ();
 use overload            ();
 use Object::Signature   ();
 
-our $VERSION = "0.03";
+our $VERSION = "0.04";
 
 BEGIN {
     __PACKAGE__->mk_accessors(
