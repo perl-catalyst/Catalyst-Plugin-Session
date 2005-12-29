@@ -493,7 +493,12 @@ L</CONFIGURATION>). This is used when creating a new session.
 =item flash
 
 This is like Ruby on Rails' flash data structure. Think of it as a stash that
-lasts a single redirect, not only a forward.
+lasts for longer than one request, letting you redirect instead of forward.
+
+The flash data will be cleaned up only on requests on which actually use
+$c->flash (thus allowing multiple redirections), and the policy is to delete
+all the keys which were present at the time the data was loaded just before the
+data is saved.
 
     sub moose : Local {
         my ( $self, $c ) = @_;
