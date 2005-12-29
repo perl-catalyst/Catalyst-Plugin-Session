@@ -14,7 +14,7 @@ BEGIN {
       or plan skip_all =>
       "Test::WWW::Mechanize::Catalyst is required for this test";
 
-    plan tests => 30;
+    plan tests => 36;
 }
 
 use lib "t/lib";
@@ -44,10 +44,26 @@ $_->get_ok( "http://localhost/page", "get main page" ) for $ua1, $ua2;
 $ua1->content_contains( "you are logged in", "ua1 logged in" );
 $ua2->content_contains( "you are logged in", "ua2 logged in" );
 
+my ( $u1_expires ) = ($ua1->content =~ /(\d+)$/);
+my ( $u2_expires ) = ($ua2->content =~ /(\d+)$/);
+
+sleep 1;
+
+$_->get_ok( "http://localhost/page", "get main page" ) for $ua1, $ua2;
+
+$ua1->content_contains( "you are logged in", "ua1 logged in" );
+$ua2->content_contains( "you are logged in", "ua2 logged in" );
+
+my ( $u1_expires_updated ) = ($ua1->content =~ /(\d+)$/);
+my ( $u2_expires_updated ) = ($ua2->content =~ /(\d+)$/);
+
+cmp_ok( $u1_expires, "<", $u1_expires_updated, "expiry time updated");
+cmp_ok( $u2_expires, "<", $u2_expires_updated, "expiry time updated");
+
 $ua2->get_ok( "http://localhost/logout", "log ua2 out" );
 $ua2->content_like( qr/logged out/, "ua2 logged out" );
-$ua2->content_like( qr/after 1 request/,
-    "ua2 made 1 request for page in the session" );
+$ua2->content_like( qr/after 2 request/,
+    "ua2 made 2 requests for page in the session" );
 
 $_->get_ok( "http://localhost/page", "get main page" ) for $ua1, $ua2;
 
@@ -56,8 +72,8 @@ $ua2->content_contains( "please login",      "ua2 not logged in" );
 
 $ua1->get_ok( "http://localhost/logout", "log ua1 out" );
 $ua1->content_like( qr/logged out/, "ua1 logged out" );
-$ua1->content_like( qr/after 3 requests/,
-    "ua1 made 3 request for page in the session" );
+$ua1->content_like( qr/after 4 requests/,
+    "ua1 made 4 request for page in the session" );
 
 $_->get_ok( "http://localhost/page", "get main page" ) for $ua1, $ua2;
 

@@ -94,16 +94,15 @@ sub _save_session {
     my $c = shift;
 
     if ( my $sid = $c->_sessionid ) {
+
+        # all sessions are extended at the end of the request
+        my $now = time;
+
+        if ( my $expires = $c->session_expires ) {
+            $c->store_session_data( "expires:$sid" => $expires );
+        }
+
         if ( my $session_data = $c->_session ) {
-
-            # all sessions are extended at the end of the request
-            my $now = time;
-
-            # the ref is a workaround for FastMmap:
-            # FastMmap can't store values which aren't refs
-            # this yields errors and other great suckage
-            $c->store_session_data( "expires:$sid" =>
-                  ( { expires => $c->config->{session}{expires} + $now } ) );
 
             no warnings 'uninitialized';
             if ( Object::Signature::signature($session_data) ne
@@ -137,41 +136,31 @@ sub _load_session {
     my $c = shift;
 
     if ( my $sid = $c->_sessionid ) {
-        no warnings 'uninitialized';    # ne __address
+        if ( $c->session_expires ) {    # > 0
 
-        # see above for explanation  of the workaround for FastMmap problem
-        my $session_expires =
-          ( $c->get_session_data("expires:$sid") || { expires => 0 } )
-          ->{expires};
+            my $session_data = $c->get_session_data("session:$sid");
+            $c->_session($session_data);
 
-        if ( $session_expires < time ) {
+            no warnings 'uninitialized';    # ne __address
+            if (   $c->config->{session}{verify_address}
+                && $session_data->{__address} ne $c->request->address )
+            {
+                $c->log->warn(
+                        "Deleting session $sid due to address mismatch ("
+                      . $session_data->{__address} . " != "
+                      . $c->request->address . ")",
+                );
+                $c->delete_session("address mismatch");
+                return;
+            }
 
-            # session expired
-            $c->log->debug("Deleting session $sid (expired)") if $c->debug;
-            $c->delete_session("session expired");
-            return;
+            $c->log->debug(qq/Restored session "$sid"/) if $c->debug;
+            $c->_session_data_sig(
+                Object::Signature::signature($session_data) );
+            $c->_expire_session_keys;
+
+            return $session_data;
         }
-
-        my $session_data = $c->get_session_data("session:$sid");
-        $c->_session($session_data);
-
-        if (   $c->config->{session}{verify_address}
-            && $session_data->{__address} ne $c->request->address )
-        {
-            $c->log->warn(
-                    "Deleting session $sid due to address mismatch ("
-                  . $session_data->{__address} . " != "
-                  . $c->request->address . ")",
-            );
-            $c->delete_session("address mismatch");
-            return;
-        }
-
-        $c->log->debug(qq/Restored session "$sid"/) if $c->debug;
-        $c->_session_data_sig( Object::Signature::signature($session_data) );
-        $c->_expire_session_keys;
-
-        return $session_data;
     }
 
     return;
@@ -212,8 +201,13 @@ sub delete_session {
     $c->delete_session_data("${_}:${sid}") for qw/session expires flash/;
 
     # reset the values in the context object
-    $c->_session(undef);
-    $c->_sessionid(undef);
+    $c->$_(undef) for qw/
+      _sessionid
+      _session
+      _session_expires
+      _session_data_sig
+      /;
+
     $c->_session_delete_reason($msg);
 }
 
@@ -224,6 +218,30 @@ sub session_delete_reason {
       if ( $c->_sessionid && !$c->_session );    # must verify session data
 
     $c->_session_delete_reason(@_);
+}
+
+sub session_expires {
+    my ( $c, $should_create ) = @_;
+
+    $c->_session_expires || do {
+        if ( my $sid = $c->_sessionid ) {
+            my $now = time;
+
+            if ( !$should_create ) {
+                if ( ( $c->get_session_data("expires:$sid") || 0 ) < $now ) {
+
+                    # session expired
+                    $c->log->debug("Deleting session $sid (expired)")
+                      if $c->debug;
+                    $c->delete_session("session expired");
+                    return 0;
+                }
+            }
+
+            return $c->_session_expires(
+                $now + $c->config->{session}{expires} );
+        }
+    };
 }
 
 sub sessionid {
@@ -315,6 +333,7 @@ sub create_session_id {
         $c->log->debug(qq/Created session "$sid"/) if $c->debug;
 
         $c->sessionid($sid);
+        $c->session_expires(1);
     }
 }
 
