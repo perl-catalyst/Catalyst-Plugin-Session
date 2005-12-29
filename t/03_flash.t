@@ -10,17 +10,23 @@ use Test::Exception;
 my $m;
 BEGIN { use_ok( $m = "Catalyst::Plugin::Session" ) }
 
-my $c = Test::MockObject::Extends->new( $m );
+my $c = Test::MockObject::Extends->new($m);
 
-$c->set_always( get_session_data => { } );
-$c->set_true( "store_session_data" );
-$c->set_always( _sessionid => "deadbeef");
-$c->set_always( config => { } );
-$c->set_always( stash => { } );
+my $flash = {};
+$c->mock(
+    get_session_data => sub {
+        my ( $c, $key ) = @_;
+        return $key =~ /expire/ ? time() + 1000 : $flash;
+    }
+);
+$c->set_true("store_session_data");
+$c->set_always( _sessionid => "deadbeef" );
+$c->set_always( config     => { session => { expires => 1000 } } );
+$c->set_always( stash      => {} );
 
 $c->_load_flash;
 
-is_deeply( $c->flash, {}, "nothing in flash");
+is_deeply( $c->flash, {}, "nothing in flash" );
 
 $c->flash->{foo} = "moose";
 
@@ -31,7 +37,7 @@ is_deeply( $c->flash, { foo => "moose" }, "one key in flash" );
 
 $c->flash->{bar} = "gorch";
 
-is_deeply( $c->flash, { foo => "moose", bar => "gorch" }, "two keys in flash");
+is_deeply( $c->flash, { foo => "moose", bar => "gorch" }, "two keys in flash" );
 
 $c->finalize;
 $c->_load_flash;
@@ -41,7 +47,7 @@ is_deeply( $c->flash, { bar => "gorch" }, "one key in flash" );
 $c->finalize;
 $c->_load_flash;
 
-is_deeply( $c->flash, {}, "nothing in flash");
+is_deeply( $c->flash, {}, "nothing in flash" );
 
 $c->flash->{bar} = "gorch";
 

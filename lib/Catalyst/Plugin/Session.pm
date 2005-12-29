@@ -14,14 +14,15 @@ use Object::Signature   ();
 
 our $VERSION = "0.04";
 
+my @session_data_accessors; # used in delete_session
 BEGIN {
     __PACKAGE__->mk_accessors(
-        qw/
+        "_session_delete_reason",
+        @session_data_accessors = qw/
           _sessionid
           _session
           _session_expires
           _session_data_sig
-          _session_delete_reason
           _flash
           _flash_stale_keys
           /
@@ -201,12 +202,8 @@ sub delete_session {
     $c->delete_session_data("${_}:${sid}") for qw/session expires flash/;
 
     # reset the values in the context object
-    $c->$_(undef) for qw/
-      _sessionid
-      _session
-      _session_expires
-      _session_data_sig
-      /;
+    # see the BEGIN block
+    $c->$_(undef) for @session_data_accessors;
 
     $c->_session_delete_reason($msg);
 }
@@ -481,6 +478,18 @@ requests.
 This method will automatically create a new session and session ID if none
 exists.
 
+=item session_expires
+
+=item session_expires $reset
+
+This method returns the time when the current session will expire, or 0 if
+there is no current session. If there is a session and it already expired, it
+will delete the session and return 0 as well.
+
+If the C<$reset> parameter is true, and there is a session ID the expiry time
+will be reset to the current time plus the time to live (see
+L</CONFIGURATION>). This is used when creating a new session.
+
 =item flash
 
 This is like Ruby on Rails' flash data structure. Think of it as a stash that
@@ -595,6 +604,13 @@ called by the C<session> method if appropriate.
 Creates a new session id using C<generate_session_id> if there is no session ID
 yet.
 
+=item validate_session_id SID
+
+Make sure a session ID is of the right format.
+
+This currently ensures that the session ID string is any amount of case
+insensitive hexadecimal characters.
+
 =item generate_session_id
 
 This method will return a string that can be used as a session ID. It is
@@ -608,13 +624,6 @@ This method is actually rather internal to generate_session_id, but should be
 overridable in case you want to provide more random data.
 
 Currently it returns a concatenated string which contains:
-
-=item validate_session_id SID
-
-Make sure a session ID is of the right format.
-
-This currently ensures that the session ID string is any amount of case
-insensitive hexadecimal characters.
 
 =over 4
 
@@ -727,7 +736,7 @@ are automatically set:
 
 =item __expires
 
-This key no longer exists. This data is now saved elsewhere.
+This key no longer exists. Use C<session_expires> instead.
 
 =item __updated
 
