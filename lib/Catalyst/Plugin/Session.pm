@@ -120,15 +120,15 @@ sub _save_flash {
     my $c = shift;
 
     if ( my $sid = $c->_sessionid ) {
-        my $flash_data = $c->_flash || {};
+        if ( my $flash_data = $c->_flash ) {
+            delete @{$flash_data}{ @{ $c->_flash_stale_keys || [] } };
 
-        delete @{$flash_data}{ @{ $c->_flash_stale_keys || [] } };
-
-        if (%$flash_data) {    # damn 'my' declarations
-            $c->store_session_data( "flash:$sid", $flash_data );
-        }
-        else {
-            $c->delete_session_data("flash:$sid");
+            if (%$flash_data) {
+                $c->store_session_data( "flash:$sid", $flash_data );
+            }
+            else {
+                $c->delete_session_data("flash:$sid");
+            }
         }
     }
 }
