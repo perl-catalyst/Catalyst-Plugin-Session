@@ -1,6 +1,6 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
-0.05    2005-12-29 10:35:00
+0.05     
         - Un-workaround the Cache::FastMmap (actually Storable) limitation -
           it's not C::P::Session's business.
         - add $c->session_expires
