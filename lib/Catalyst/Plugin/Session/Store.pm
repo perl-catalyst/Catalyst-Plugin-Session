@@ -97,6 +97,8 @@ just give this method an empty body.
 All errors should be thrown using L<Catalyst::Exception>. Return values are not
 checked at all, and are assumed to be OK.
 
+Missing values are not errors.
+
 =head2 Auto-Expirey on the Backend
 
 Storage plugins are encouraged to use C<< $c->session_expires >>, C<<
