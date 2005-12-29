@@ -39,13 +39,38 @@ specification to work correctly:
 
 =over 4
 
-=item get_session_data $sid
+=item get_session_data $key
 
-Retrieve a session from storage, whose ID is the first parameter.
+=item store_session_data $key, $data
 
-Should return a hash reference.
+Retrieve or store session data by key.
 
-=item store_session_data $sid, $hashref
+C<$data> is currently either a hash reference (for most keys) or an integer value
+(for expires), but all value types should be supported.
+
+Keys are in the format C<prefix:id>, where C<prefix> is C<session>, C<expires>,
+or C<flash>, and C<id> is always the session ID. Plugins such as
+L<Catalyst::Plugin::Session::PerUser> store extensions to this, like
+C<user:username>.
+
+The store is encouraged to split on the column and store the data more
+efficiently if the store author is inclined to do so - the API should remain
+pretty stable, with the possible addition of new prefixes in the future, but
+not much more.
+
+For example, C<Store::DBI> maps C<expires:id> a column of C<session:id> by special
+casing C<get_session_data> and C<store_session_data> for that key format, in
+order to ease the implementation of C<delete_expired_sessions>.
+
+The only assurance stores are requred to make is that given
+
+    $c->store_session_data( $x, $y );
+
+for any $x, 
+
+    $y == $c->get_session_data( $x )
+
+will hold.
 
 Store a session whose ID is the first parameter and data is the second
 parameter in storage.
@@ -74,9 +99,10 @@ checked at all, and are assumed to be OK.
 
 =head2 Auto-Expirey on the Backend
 
-Storage plugins are encouraged to use C<< $c->config->{session}{expires} >> and
-the C<__expires> key in the session data hash reference to auto expire data on
-the backend side.
+Storage plugins are encouraged to use C<< $c->session_expires >>, C<<
+$c->config->{session}{expires} >> or the storage of the C<expires:$sessionid>
+key to perform more efficient expiration, but only for the key prefixes
+C<session>, C<flash> and C<expires>.
 
 If the backend chooses not to do so, L<Catalyst::Plugin::Session> will detect
 expired sessions as they are retrieved and delete them if necessary.
