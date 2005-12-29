@@ -97,7 +97,7 @@ you can just give this method an empty body.
 =head2 Error handling
 
 All errors should be thrown using L<Catalyst::Exception>. Return values
-are not checked, and are assumed to be OK.
+are not checked, and are assumed to be OK. Missing values are not errors.
 
 =head2 Auto-Expiry on the Backend
 
