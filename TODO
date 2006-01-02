@@ -1,0 +1,14 @@
+* Store::MultiFile
+    - hierarchal directory structure
+    - filesystem based delete_expired_sessions
+    - no locking (update?)
+    - NFS friendly
+* Store::BerkeleyDB
+    - complement FastMmap, but no LRU silliness
+* Catalyst::Plugin::Semaphores
+    - possible drivers
+        - memcached
+        - flock
+        - berkeleydb
+        - fastmmap
+        
