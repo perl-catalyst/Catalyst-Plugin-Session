@@ -134,9 +134,11 @@ sub import {
         package t1;
         use Catalyst::Test "SessionStoreTest";
 
-        get("/create_session");
-        get("/recover_session");
-        get("/after_session");
+        # idiotic void context warning workaround
+        
+        my $x = get("/create_session");
+        $x = get("/recover_session");
+        $x = get("/after_session");
     }
 
     {
@@ -144,9 +146,9 @@ sub import {
         package t2;
         use Catalyst::Test "SessionStoreTest2";
 
-        get("/create_session");
+        my $x = get("/create_session");
         sleep 1;    # let the session expire
-        get("/recover_session");
+        $x = get("/recover_session");
     }
 }
 
