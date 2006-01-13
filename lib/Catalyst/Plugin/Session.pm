@@ -245,6 +245,10 @@ sub sessionid {
     my $c = shift;
 
     if (@_) {
+        if($c->_sessionid()) {
+            $c->log->warn('Session ID already set, ignoring.');
+            return $c->_sessionid();
+        }
         if ( $c->validate_session_id( my $sid = shift ) ) {
             $c->_sessionid($sid);
             return unless defined wantarray;
