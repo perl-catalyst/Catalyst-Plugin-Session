@@ -156,8 +156,7 @@ sub _load_session {
             }
 
             $c->log->debug(qq/Restored session "$sid"/) if $c->debug;
-            $c->_session_data_sig(
-                Object::Signature::signature($session_data) );
+            $c->_session_data_sig( Object::Signature::signature($session_data) ) if $session_data;
             $c->_expire_session_keys;
 
             return $session_data;
