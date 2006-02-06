@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More tests => 4;
 use Test::MockObject::Extends;
 use Test::Exception;
 
@@ -23,10 +23,15 @@ $c->set_true("store_session_data");
 #$c->set_always( _sessionid => "deadbeef" );
 $c->set_always( config     => { session => { expires => 1000 } } );
 $c->set_always( stash      => {} );
+$c->set_always( log => my $log = Test::MockObject->new );
+$log->set_true( "warn" );
 
 $c->sessionid('deadbeef');
 is_deeply($c->sessionid(), 'deadbeef', "Session not set properly.");
 
-$c->sessionid('deadbeef2');
+$log->clear;
 
-is_deeply($c->sessionid(), 'deadbeef', "Session was stomped!.");
+$c->sessionid('deadbeef2');
+is_deeply($c->sessionid(), 'deadbeef', "Session was not stomped!.");
+
+$log->called_ok("warn");
