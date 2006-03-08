@@ -24,7 +24,8 @@ BEGIN {
           _session_expires
           _session_data_sig
           _flash
-          _flash_stale_keys
+          _flash_keep_keys
+          _flash_key_hashes
           /
     );
 }
@@ -121,7 +122,14 @@ sub _save_flash {
 
     if ( my $sid = $c->_sessionid ) {
         if ( my $flash_data = $c->_flash ) {
-            delete @{$flash_data}{ @{ $c->_flash_stale_keys || [] } };
+
+            my $hashes = $c->_flash_key_hashes || {};
+            my $keep = $c->_flash_keep_keys || {};
+            foreach my $key ( keys %$hashes ) {
+                if ( !exists $keep->{$key} and Object::Signature::signature( \$flash_data->{$key} ) eq $hashes->{$key} ) {
+                    delete $flash_data->{$key};
+                }
+            }
 
             if (%$flash_data) {
                 $c->store_session_data( "flash:$sid", $flash_data );
@@ -173,7 +181,7 @@ sub _load_flash {
         if ( my $flash_data = $c->_flash
             || $c->_flash( $c->get_session_data("flash:$sid") ) )
         {
-            $c->_flash_stale_keys( [ keys %$flash_data ] );
+            $c->_flash_key_hashes({ map { $_ => Object::Signature::signature( \$flash_data->{$_} ) } keys %$flash_data });
             return $flash_data;
         }
     }
@@ -279,6 +287,11 @@ sub session {
 
         $c->initialize_session_data;
     };
+}
+
+sub keep_flash {
+    my ( $c, @keys ) = @_;
+    ($c->_flash_keep_keys->{@keys}) = ((undef) x @keys);
 }
 
 sub flash {
