@@ -513,8 +513,8 @@ lasts for longer than one request, letting you redirect instead of forward.
 
 The flash data will be cleaned up only on requests on which actually use
 $c->flash (thus allowing multiple redirections), and the policy is to delete
-all the keys which were present at the time the data was loaded just before the
-data is saved.
+all the keys which haven't changed since the flash data was loaded at the end
+of every request.
 
     sub moose : Local {
         my ( $self, $c ) = @_;
@@ -540,6 +540,11 @@ data is saved.
         
         }
     }
+
+=item keep_flash @keys
+
+If you wawnt to keep a flash key for the next request too, even if it hasn't
+changed, call C<keep_flash> and pass in the keys as arguments.
 
 =item session_delete_reason
 
