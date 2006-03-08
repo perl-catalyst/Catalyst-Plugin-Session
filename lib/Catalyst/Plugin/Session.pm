@@ -157,7 +157,7 @@ sub _load_session {
                 $c->log->warn(
                         "Deleting session $sid due to address mismatch ("
                       . $session_data->{__address} . " != "
-                      . $c->request->address . ")" . Carp::longmess,
+                      . $c->request->address . ")"
                 );
                 $c->delete_session("address mismatch");
                 return;
