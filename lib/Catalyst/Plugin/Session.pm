@@ -147,7 +147,7 @@ sub _load_session {
     if ( my $sid = $c->_sessionid ) {
         if ( $c->session_expires ) {    # > 0
 
-            my $session_data = $c->get_session_data("session:$sid");
+            my $session_data = $c->get_session_data("session:$sid") || return;
             $c->_session($session_data);
 
             no warnings 'uninitialized';    # ne __address
@@ -157,7 +157,7 @@ sub _load_session {
                 $c->log->warn(
                         "Deleting session $sid due to address mismatch ("
                       . $session_data->{__address} . " != "
-                      . $c->request->address . ")",
+                      . $c->request->address . ")" . Carp::longmess,
                 );
                 $c->delete_session("address mismatch");
                 return;
@@ -291,7 +291,8 @@ sub session {
 
 sub keep_flash {
     my ( $c, @keys ) = @_;
-    ($c->_flash_keep_keys->{@keys}) = ((undef) x @keys);
+    my $href = $c->_flash_keep_keys || $c->_flash_keep_keys({});
+    (@{$href}{@keys}) = ((undef) x @keys);
 }
 
 sub flash {
