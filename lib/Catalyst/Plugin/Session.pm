@@ -257,8 +257,8 @@ sub session_expires {
 
 sub extend_session_expires {
     my ( $c, $expires ) = @_;
-
     $c->_session_expires( my $updated = $c->calculate_extended_session_expires( $expires ) );
+    $c->extend_session_id( $c->sessionid, $updated );
     return $updated;
 }
 
@@ -433,6 +433,7 @@ sub dump_these {
 sub get_session_id { shift->NEXT::get_session_id(@_) }
 sub set_session_id { shift->NEXT::set_session_id(@_) }
 sub delete_session_id { shift->NEXT::delete_session_id(@_) }
+sub extend_session_id { shift->NEXT::extend_session_id(@_) }
 
 __PACKAGE__;
 
