@@ -26,6 +26,7 @@ BEGIN {
           _flash
           _flash_keep_keys
           _flash_key_hashes
+          _tried_loading_session
           /
     );
 }
@@ -74,7 +75,7 @@ sub prepare_action {
     my $c = shift;
 
     if (    $c->config->{session}{flash_to_stash}
-        and $c->_sessionid
+        and $c->sessionid
         and my $flash_data = $c->flash )
     {
         @{ $c->stash }{ keys %$flash_data } = values %$flash_data;
@@ -95,7 +96,7 @@ sub finalize {
 sub _save_session {
     my $c = shift;
 
-    if ( my $sid = $c->_sessionid ) {
+    if ( my $sid = $c->sessionid ) {
 
         # all sessions are extended at the end of the request
         my $now = time;
@@ -120,7 +121,7 @@ sub _save_session {
 sub _save_flash {
     my $c = shift;
 
-    if ( my $sid = $c->_sessionid ) {
+    if ( my $sid = $c->sessionid ) {
         if ( my $flash_data = $c->_flash ) {
 
             my $hashes = $c->_flash_key_hashes || {};
@@ -141,10 +142,28 @@ sub _save_flash {
     }
 }
 
+sub _load_session_expires {
+    my $c = shift;
+
+    if ( my $sid = $c->sessionid ) {
+        my $expires = $c->get_session_data("expires:$sid") || 0;
+
+        if ( $expires >= time() ) {
+            return $c->extend_session_expires( $expires );
+        } else {
+            $c->delete_session( "session expired" );
+            return 0;
+        }
+    } else {
+        $c->_session_expires( 0 );
+        return 0;
+    }
+}
+
 sub _load_session {
     my $c = shift;
 
-    if ( my $sid = $c->_sessionid ) {
+    if ( my $sid = $c->sessionid ) {
         if ( $c->session_expires ) {    # > 0
 
             my $session_data = $c->get_session_data("session:$sid") || return;
@@ -177,11 +196,12 @@ sub _load_session {
 sub _load_flash {
     my $c = shift;
 
-    if ( my $sid = $c->_sessionid ) {
+    if ( my $sid = $c->sessionid ) {
         if ( my $flash_data = $c->_flash
             || $c->_flash( $c->get_session_data("flash:$sid") ) )
         {
             $c->_flash_key_hashes({ map { $_ => Object::Signature::signature( \$flash_data->{$_} ) } keys %$flash_data });
+            
             return $flash_data;
         }
     }
@@ -194,10 +214,10 @@ sub _expire_session_keys {
 
     my $now = time;
 
-    my $expiry = ( $data || $c->_session || {} )->{__expire_keys} || {};
-    foreach my $key ( grep { $expiry->{$_} < $now } keys %$expiry ) {
+    my $expire_times = ( $data || $c->_session || {} )->{__expire_keys} || {};
+    foreach my $key ( grep { $expire_times->{$_} < $now } keys %$expire_times ) {
         delete $c->_session->{$key};
-        delete $expiry->{$key};
+        delete $expire_times->{$key};
     }
 }
 
@@ -205,8 +225,10 @@ sub delete_session {
     my ( $c, $msg ) = @_;
 
     # delete the session data
-    my $sid = $c->_sessionid || return;
+    my $sid = $c->sessionid || return;
     $c->delete_session_data("${_}:${sid}") for qw/session expires flash/;
+
+    $c->delete_session_id;
 
     # reset the values in the context object
     # see the BEGIN block
@@ -218,59 +240,76 @@ sub delete_session {
 sub session_delete_reason {
     my $c = shift;
 
-    $c->_load_session
-      if ( $c->_sessionid && !$c->_session );    # must verify session data
+    $c->session_is_valid; # check that it was loaded
 
     $c->_session_delete_reason(@_);
 }
 
 sub session_expires {
-    my ( $c, $should_create ) = @_;
+    my $c = shift;
 
-    $c->_session_expires || do {
-        if ( my $sid = $c->_sessionid ) {
-            my $now = time;
+    if ( defined( my $expires = $c->_session_expires ) ) {
+        return $expires;
+    } else {
+        return $c->_load_session_expires;
+    }
+}
 
-            if ( !$should_create ) {
-                if ( ( $c->get_session_data("expires:$sid") || 0 ) < $now ) {
+sub extend_session_expires {
+    my ( $c, $expires ) = @_;
 
-                    # session expired
-                    $c->log->debug("Deleting session $sid (expired)")
-                      if $c->debug;
-                    $c->delete_session("session expired");
-                    return 0;
-                }
-            }
+    $c->_session_expires( my $updated = $c->calculate_extended_session_expires( $expires ) );
+    return $updated;
+}
 
-            return $c->_session_expires(
-                $now + $c->config->{session}{expires} );
-        }
-    };
+sub calculate_initial_session_expires {
+    my $c = shift;
+    return ( time() + $c->config->{session}{expires} );
+}
+
+sub calculate_extended_session_expires {
+    my ( $c, $prev ) = @_;
+    $c->calculate_initial_session_expires;
+}
+
+sub reset_session_expires {
+    my ( $c, $sid ) = @_;
+    $c->_session_expires( my $exp = $c->calculate_initial_session_expires );
+    $exp;
 }
 
 sub sessionid {
     my $c = shift;
-
-    if (@_) {
-        if($c->_sessionid()) {
-            $c->log->warn('Session ID already set, ignoring.');
-            return $c->_sessionid();
-        }
-        if ( $c->validate_session_id( my $sid = shift ) ) {
-            $c->_sessionid($sid);
-            return unless defined wantarray;
-        }
-        else {
-            my $err = "Tried to set invalid session ID '$sid'";
-            $c->log->error($err);
-            Catalyst::Exception->throw($err);
+    
+    return $c->_sessionid || do {
+        unless ( $c->_tried_loading_session ) {
+            $c->_tried_loading_session(1);
+            if ( defined( my $sid = $c->get_session_id ) ) {
+                if ( $c->validate_session_id($sid) ) {
+                    $c->_sessionid( $sid );
+                    return $sid;
+                } else {
+                    my $err = "Tried to set invalid session ID '$sid'";
+                    $c->log->error($err);
+                    Catalyst::Exception->throw($err);
+                }
+            } else {
+                return;
+            }
         }
     }
+}
 
-    $c->_load_session
-      if ( $c->_sessionid && !$c->_session );    # must verify session data
+sub session_is_valid {
+    my $c = shift;
 
-    return $c->_sessionid;
+    $c->_load_session unless $c->_session; # check expiry and also __address, etc
+
+    if ( $c->_session ) {
+        return 1;
+    } else {
+        return;
+    }
 }
 
 sub validate_session_id {
@@ -284,7 +323,6 @@ sub session {
 
     $c->_session || $c->_load_session || do {
         $c->create_session_id;
-
         $c->initialize_session_data;
     };
 }
@@ -341,14 +379,15 @@ sub generate_session_id {
 sub create_session_id {
     my $c = shift;
 
-    if ( !$c->_sessionid ) {
-        my $sid = $c->generate_session_id;
+    my $sid = $c->generate_session_id;
 
-        $c->log->debug(qq/Created session "$sid"/) if $c->debug;
+    $c->log->debug(qq/Created session "$sid"/) if $c->debug;
 
-        $c->sessionid($sid);
-        $c->session_expires(1);
-    }
+    $c->_sessionid($sid);
+    $c->reset_session_expires;
+    $c->set_session_id($sid);
+
+    return $sid;
 }
 
 my $counter;
@@ -389,6 +428,11 @@ sub dump_these {
         : ()
     );
 }
+
+
+sub get_session_id { shift->NEXT::get_session_id(@_) }
+sub set_session_id { shift->NEXT::set_session_id(@_) }
+sub delete_session_id { shift->NEXT::delete_session_id(@_) }
 
 __PACKAGE__;
 

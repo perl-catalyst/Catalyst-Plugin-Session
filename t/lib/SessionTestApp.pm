@@ -21,7 +21,7 @@ sub logout : Global {
 
 sub page : Global {
     my ( $self, $c ) = @_;
-    if ( $c->sessionid ) {
+    if ( $c->session_is_valid ) {
         $c->res->output("you are logged in, session expires at " . $c->session_expires);
         $c->session->{counter}++;
     }
