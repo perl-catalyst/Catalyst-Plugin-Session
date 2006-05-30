@@ -592,6 +592,11 @@ of every request.
 If you wawnt to keep a flash key for the next request too, even if it hasn't
 changed, call C<keep_flash> and pass in the keys as arguments.
 
+=item delete_session REASON
+
+This method is used to invalidate a session. It takes an optional parameter
+which will be saved in C<session_delete_reason> if provided.
+
 =item session_delete_reason
 
 This accessor contains a string with the reason a session was deleted. Possible
@@ -660,11 +665,6 @@ prepare time.
 
 This method is extended and will extend the expiry time, as well as persist the
 session data if a session exists.
-
-=item delete_session REASON
-
-This method is used to invalidate a session. It takes an optional parameter
-which will be saved in C<session_delete_reason> if provided.
 
 =item initialize_session_data
 
