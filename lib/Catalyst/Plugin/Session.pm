@@ -93,8 +93,13 @@ sub finalize {
     $c->_save_session_expires;
     $c->_save_session;
     $c->_save_flash;
+    $c->_save_session_id;
 
     $c->NEXT::finalize(@_);
+}
+
+sub _save_session_id {
+    my $c = shift;
 }
 
 sub _save_session_expires {
@@ -157,7 +162,7 @@ sub _save_flash {
 
 sub _load_session_expires {
     my $c = shift;
-    return if $c->_tried_loading_session_expires;
+    return $c->_session_expires if $c->_tried_loading_session_expires;
     $c->_tried_loading_session_expires(1);
 
     if ( my $sid = $c->sessionid ) {
@@ -176,7 +181,7 @@ sub _load_session_expires {
 
 sub _load_session {
     my $c = shift;
-    return if $c->_tried_loading_session_data;
+    return $c->_session if $c->_tried_loading_session_data;
     $c->_tried_loading_session_data(1);
 
     if ( my $sid = $c->sessionid ) {
@@ -211,7 +216,7 @@ sub _load_session {
 
 sub _load_flash {
     my $c = shift;
-    return if $c->_tried_loading_flash_data;
+    return $c->_flash if $c->_tried_loading_flash_data;
     $c->_tried_loading_flash_data(1);
 
     if ( my $sid = $c->sessionid ) {
@@ -242,11 +247,14 @@ sub _expire_session_keys {
 sub delete_session {
     my ( $c, $msg ) = @_;
 
-    # delete the session data
-    my $sid = $c->sessionid || return;
-    $c->delete_session_data("${_}:${sid}") for qw/session expires flash/;
+    $c->log->debug("Deleting session") if $c->debug;
 
-    $c->delete_session_id;
+    # delete the session data
+    if ( my $sid = $c->sessionid ) {
+        $c->delete_session_data("${_}:${sid}") for qw/session expires flash/;
+
+        $c->delete_session_id;
+    }
 
     # reset the values in the context object
     # see the BEGIN block
@@ -327,9 +335,8 @@ sub _load_sessionid {
 sub session_is_valid {
     my $c = shift;
 
-    $c->_load_session; # check expiry and also __address, etc
-
-    if ( $c->_session ) {
+    # force a check for expiry, but also __address, etc
+    if ( $c->_load_session ) {
         return 1;
     } else {
         return;
