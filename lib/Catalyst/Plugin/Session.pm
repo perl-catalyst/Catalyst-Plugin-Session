@@ -252,8 +252,7 @@ sub delete_session {
     # delete the session data
     if ( my $sid = $c->sessionid ) {
         $c->delete_session_data("${_}:${sid}") for qw/session expires flash/;
-
-        $c->delete_session_id;
+        $c->delete_session_id($sid);
     }
 
     # reset the values in the context object
