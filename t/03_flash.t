@@ -24,14 +24,11 @@ $c->set_always( _sessionid => "deadbeef" );
 $c->set_always( config     => { session => { expires => 1000 } } );
 $c->set_always( stash      => {} );
 
-$c->_load_flash;
-
 is_deeply( $c->flash, {}, "nothing in flash" );
 
 $c->flash->{foo} = "moose";
 
 $c->finalize;
-$c->_load_flash;
 
 is_deeply( $c->flash, { foo => "moose" }, "one key in flash" );
 
@@ -40,12 +37,10 @@ $c->flash->{bar} = "gorch";
 is_deeply( $c->flash, { foo => "moose", bar => "gorch" }, "two keys in flash" );
 
 $c->finalize;
-$c->_load_flash;
 
 is_deeply( $c->flash, { bar => "gorch" }, "one key in flash" );
 
 $c->finalize;
-$c->_load_flash;
 
 is_deeply( $c->flash, {}, "nothing in flash" );
 
