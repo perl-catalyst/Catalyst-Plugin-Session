@@ -27,3 +27,6 @@
 
 # prereq tests may fail due to optionals
 99_prereq\.t$
+
+# Module::Bane
+\bBuild.PL$
