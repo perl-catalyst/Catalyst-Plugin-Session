@@ -1,7 +1,9 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
 0.06
-        - Set sessionid only if unset, allowing State plugins to stack (gphat)
+        - Change State plugin API to be pull oriented
+        - Lazify more correctly (mostly performance improvements)
+        - Don't try to compute digest of hash when there is no hash
 
 0.05     
         - Un-workaround the Cache::FastMmap (actually Storable) limitation -
