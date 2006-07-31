@@ -1,5 +1,9 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+0.07
+        - Make build tool complain loudly on incompatible versions of state
+          plugins.
+
 0.06
         - Change State plugin API to be pull oriented
         - Lazify more correctly (mostly performance improvements)
