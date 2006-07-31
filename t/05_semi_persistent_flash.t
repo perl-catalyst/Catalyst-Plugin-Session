@@ -4,9 +4,9 @@ use strict;
 use Test::More;
 
 BEGIN {
-    eval { require Catalyst::Plugin::Session::State::Cookie }
+    eval { require Catalyst::Plugin::Session::State::Cookie; Catalyst::Plugin::Session::State::Cookie->VERSION(0.03) }
         or plan skip_all =>
-            "Catalyst::Plugin::Session::State::Cookie is required for this test";
+            "Catalyst::Plugin::Session::State::Cookie version 0.03 or higher is required for this test";
 
     eval { require Test::WWW::Mechanize::Catalyst }
       or plan skip_all =>
