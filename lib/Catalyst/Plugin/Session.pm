@@ -12,7 +12,7 @@ use Digest              ();
 use overload            ();
 use Object::Signature   ();
 
-our $VERSION = "0.07";
+our $VERSION = "0.08";
 
 my @session_data_accessors; # used in delete_session
 BEGIN {
