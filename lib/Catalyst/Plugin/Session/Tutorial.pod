@@ -274,8 +274,6 @@ The user can change the data.
 
 Cookies have a 4 kilobyte size limit.
 
-=back
-
 The size limit is of no concern in this section, but data changing is. In the
 database scheme the data can be trusted, since the user can neither read nor
 write it. However, if the data is delegated to the user, then special measures
