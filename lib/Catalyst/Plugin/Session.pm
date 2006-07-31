@@ -12,7 +12,7 @@ use Digest              ();
 use overload            ();
 use Object::Signature   ();
 
-our $VERSION = "0.08";
+our $VERSION = "0.09";
 
 my @session_data_accessors; # used in delete_session
 BEGIN {
@@ -319,7 +319,8 @@ sub _load_sessionid {
 
     if ( defined( my $sid = $c->get_session_id ) ) {
         if ( $c->validate_session_id($sid) ) {
-            $c->_sessionid( $sid );
+            # temporarily set the inner key, so that validation will work
+            $c->_sessionid($sid);
             return $sid;
         } else {
             my $err = "Tried to set invalid session ID '$sid'";

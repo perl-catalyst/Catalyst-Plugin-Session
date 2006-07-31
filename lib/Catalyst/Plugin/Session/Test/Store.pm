@@ -5,6 +5,8 @@ package Catalyst::Plugin::Session::Test::Store;
 use strict;
 use warnings;
 
+use utf8;
+
 use Test::More tests => 19;
 use File::Temp;
 use File::Spec;
@@ -23,51 +25,63 @@ sub import {
 
     isa_ok( bless( {}, $m ), "Catalyst::Plugin::Session::Store" );
 
-    our $restored_session_id;
+    {
+        package Catalyst::Plugin::SessionStateTest;
+        use base qw/Catalyst::Plugin::Session::State/;
+
+        no strict 'refs';
+
+        sub get_session_id {
+            my $c = shift;
+            ${ ref($c) . "::session_id" };
+        }
+
+        sub set_session_id {
+            my ( $c, $sid ) = @_;
+            ${ ref($c) . "::session_id" } = $sid;
+        }
+
+        sub delete_session_id {
+            my $c = shift;
+            undef ${ ref($c) . "::session_id" };
+        }
+    }
 
     {
 
         package SessionStoreTest;
-        use Catalyst qw/Session Session::State/;
+        use Catalyst qw/Session SessionStateTest/;
         push our (@ISA), $m;
 
-        our $VERSION = "0.01";
+        use strict;
+        use warnings;
 
         use Test::More;
 
-        sub prepare_cookies {
-            my $c = shift;
-            $c->sessionid($restored_session_id) if defined $restored_session_id;
-            $c->NEXT::prepare_cookies(@_);
-        }
-
         sub create_session : Global {
             my ( $self, $c ) = @_;
-            ok( !$c->sessionid, "no session id yet" );
-            ok( $c->session,    "session created" );
-            ok( $c->sessionid,  "with a session id" );
-
-            $restored_session_id = $c->sessionid;
+            ok( !$c->session_is_valid, "no session id yet" );
+            ok( $c->session,           "session created" );
+            ok( $c->session_is_valid,  "with a session id" );
 
             $c->session->{magic} = "møøse";
         }
 
         sub recover_session : Global {
             my ( $self, $c ) = @_;
-            ok( $c->sessionid, "session id exists" );
-            is( $c->sessionid, $restored_session_id,
+            ok( $c->session_is_valid, "session id exists" );
+            is( $c->sessionid, our $session_id,
                 "and is the one we saved in the last action" );
             ok( $c->session, "a session exists" );
             is( $c->session->{magic},
                 "møøse",
                 "and it contains what we put in on the last attempt" );
             $c->delete_session("user logout");
-            $restored_session_id = undef;
         }
 
         sub after_session : Global {
             my ( $self, $c ) = @_;
-            ok( !$c->sessionid,             "no session id" );
+            ok( !$c->session_is_valid,      "no session id" );
             ok( !$c->session->{magic},      "session data not restored" );
             ok( !$c->session_delete_reason, "no reason for deletion" );
         }
@@ -80,31 +94,23 @@ sub import {
     {
 
         package SessionStoreTest2;
-        use Catalyst qw/Session Session::State/;
+        use Catalyst qw/Session SessionStateTest/;
         push our (@ISA), $m;
 
         our $VERSION = "123";
 
         use Test::More;
 
-        sub prepare_cookies {
-            my $c = shift;
-            $c->sessionid($restored_session_id) if defined $restored_session_id;
-            $c->NEXT::prepare_cookies(@_);
-        }
-
         sub create_session : Global {
             my ( $self, $c ) = @_;
 
             $c->session->{magic} = "møøse";
-
-            $restored_session_id = $c->sessionid;
         }
 
         sub recover_session : Global {
             my ( $self, $c ) = @_;
 
-            ok( !$c->sessionid, "no session id" );
+            ok( !$c->session_is_valid, "session is gone" );
 
             is(
                 $c->session_delete_reason,
