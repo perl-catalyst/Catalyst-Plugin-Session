@@ -90,10 +90,10 @@ sub prepare_action {
 sub finalize {
     my $c = shift;
 
-    $c->_save_session_expires;
+    $c->_save_session_id;
     $c->_save_session;
     $c->_save_flash;
-    $c->_save_session_id;
+    $c->_save_session_expires;
 
     $c->NEXT::finalize(@_);
 }
