@@ -1,5 +1,10 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+0.10
+        - Implement a more well defined finalization order for Session stuff.
+          This solves a problem that was introduced by some value cleanups in
+          the 0.06 release.
+
 0.09
         - Fix Catalyst::Plugin::Session::Test::Store
 
