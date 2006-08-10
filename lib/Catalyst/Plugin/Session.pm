@@ -12,7 +12,7 @@ use Digest              ();
 use overload            ();
 use Object::Signature   ();
 
-our $VERSION = "0.10";
+our $VERSION = "0.11";
 
 my @session_data_accessors; # used in delete_session
 BEGIN {
@@ -22,6 +22,7 @@ BEGIN {
           _sessionid
           _session
           _session_expires
+          _extended_session_expires
           _session_data_sig
           _flash
           _flash_keep_keys
@@ -95,6 +96,8 @@ sub finalize {
     $c->_save_flash;
     $c->_save_session_expires;
 
+    $c->_clear_session_instance_data;
+
     $c->NEXT::finalize(@_);
 }
 
@@ -108,12 +111,11 @@ sub _save_session_id {
 sub _save_session_expires {
     my $c = shift;
 
-    if ( defined(my $expires = $c->_session_expires) ) {
+    if ( defined($c->_session_expires) ) {
+        my $expires = $c->session_expires; # force extension
+
         my $sid = $c->sessionid;
         $c->store_session_data( "expires:$sid" => $expires );
-
-        $c->_session_expires(undef);
-        $c->_tried_loading_session_expires(undef);
     }
 }
 
@@ -130,9 +132,6 @@ sub _save_session {
             my $sid = $c->sessionid;
             $c->store_session_data( "session:$sid" => $session_data );
         }
-
-        $c->_session(undef);
-        $c->_tried_loading_session_data(undef);
     }
 }
 
@@ -157,9 +156,6 @@ sub _save_flash {
         else {
             $c->delete_session_data("flash:$sid");
         }
-        
-        $c->_flash(undef);
-        $c->_tried_loading_flash_data(undef);
     }
 }
 
@@ -172,7 +168,8 @@ sub _load_session_expires {
         my $expires = $c->get_session_data("expires:$sid") || 0;
 
         if ( $expires >= time() ) {
-            return $c->extend_session_expires( $expires );
+            $c->_session_expires( $expires );
+            return $expires;
         } else {
             $c->delete_session( "session expired" );
             return 0;
@@ -188,7 +185,7 @@ sub _load_session {
     $c->_tried_loading_session_data(1);
 
     if ( my $sid = $c->sessionid ) {
-        if ( $c->session_expires ) {    # > 0
+        if ( $c->_load_session_expires ) {    # > 0
 
             my $session_data = $c->get_session_data("session:$sid") || return;
             $c->_session($session_data);
@@ -247,6 +244,11 @@ sub _expire_session_keys {
     }
 }
 
+sub _clear_session_instance_data {
+    my $c = shift;
+    $c->$_(undef) for @session_data_accessors;
+}
+
 sub delete_session {
     my ( $c, $msg ) = @_;
 
@@ -260,7 +262,7 @@ sub delete_session {
 
     # reset the values in the context object
     # see the BEGIN block
-    $c->$_(undef) for @session_data_accessors;
+    $c->_clear_session_instance_data;
 
     $c->_session_delete_reason($msg);
 }
@@ -276,11 +278,10 @@ sub session_delete_reason {
 sub session_expires {
     my $c = shift;
 
-    if ( defined( my $expires = $c->_session_expires ) ) {
+    if ( defined( my $expires = $c->_extended_session_expires ) ) {
         return $expires;
     } elsif ( defined( $expires = $c->_load_session_expires ) ) {
-        $c->_session_expires($expires);
-        return $expires;
+        return $c->extend_session_expires( $expires );
     } else {
         return 0;
     }
@@ -288,7 +289,7 @@ sub session_expires {
 
 sub extend_session_expires {
     my ( $c, $expires ) = @_;
-    $c->_session_expires( my $updated = $c->calculate_extended_session_expires( $expires ) );
+    $c->_extended_session_expires( my $updated = $c->calculate_extended_session_expires( $expires ) );
     $c->extend_session_id( $c->sessionid, $updated );
     return $updated;
 }
@@ -305,7 +306,10 @@ sub calculate_extended_session_expires {
 
 sub reset_session_expires {
     my ( $c, $sid ) = @_;
-    $c->_session_expires( my $exp = $c->calculate_initial_session_expires );
+    
+    my $exp = $c->calculate_initial_session_expires;
+    $c->_session_expires( $exp );
+    $c->_extended_session_expires( $exp );
     $exp;
 }
 

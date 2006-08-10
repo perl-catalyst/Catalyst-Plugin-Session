@@ -1,5 +1,10 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+0.11
+        - Lazify expiry calculation and store it in a different instance data
+          slot. This provides greater flexibility for implementing hooks like
+          DynamicExpiry the "right" way.
+
 0.10
         - Implement a more well defined finalization order for Session stuff.
           This solves a problem that was introduced by some value cleanups in
