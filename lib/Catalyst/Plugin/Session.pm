@@ -12,7 +12,7 @@ use Digest              ();
 use overload            ();
 use Object::Signature   ();
 
-our $VERSION = "0.11";
+our $VERSION = "0.12";
 
 my @session_data_accessors; # used in delete_session
 BEGIN {
@@ -91,6 +91,14 @@ sub prepare_action {
 sub finalize {
     my $c = shift;
 
+    $c->finalize_session;
+    
+    $c->NEXT::finalize(@_);
+}
+
+sub finalize_session {
+    my $c = shift;
+
     $c->_save_session_id;
     $c->_save_session;
     $c->_save_flash;
@@ -98,7 +106,7 @@ sub finalize {
 
     $c->_clear_session_instance_data;
 
-    $c->NEXT::finalize(@_);
+    $c->NEXT::finalize_session;
 }
 
 sub _save_session_id {
@@ -247,6 +255,7 @@ sub _expire_session_keys {
 sub _clear_session_instance_data {
     my $c = shift;
     $c->$_(undef) for @session_data_accessors;
+    $c->NEXT::_clear_session_instance_data; # allow other plugins to hook in on this
 }
 
 sub delete_session {
@@ -785,6 +794,12 @@ Or even more directly, replace C<generate_session_id>:
 
 Also have a look at L<Crypt::Random> and the various openssl bindings - these
 modules provide APIs for cryptographically secure random data.
+
+=item finalize_session
+
+Clean up the session during C<finalize>.
+
+This clears the various accessors after saving to the store.
 
 =item dump_these
 

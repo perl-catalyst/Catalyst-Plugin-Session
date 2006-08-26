@@ -1,5 +1,10 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+0.012
+        - refactor out a hookable finalize_session method, for plugins
+        - make _clear_session_instance_data call NEXT::, so that plugins can
+          hook on to that too
+
 0.11
         - Lazify expiry calculation and store it in a different instance data
           slot. This provides greater flexibility for implementing hooks like

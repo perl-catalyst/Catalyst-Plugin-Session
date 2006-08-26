@@ -7,7 +7,7 @@ use warnings;
 
 use utf8;
 
-use Test::More tests => 19;
+use Test::More;
 use File::Temp;
 use File::Spec;
 
@@ -16,6 +16,8 @@ use Catalyst ();
 sub import {
     shift;
     my %args = @_;
+
+    plan tests => 19 + ($args{extra_tests} || 0);
 
     my $backend = $args{backend};
     my $cfg     = $args{config};
