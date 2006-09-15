@@ -1,6 +1,10 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
-0.012
+0.13
+        - add `clear_flash`
+        - improve debug logging
+
+0.12
         - refactor out a hookable finalize_session method, for plugins
         - make _clear_session_instance_data call NEXT::, so that plugins can
           hook on to that too

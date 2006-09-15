@@ -99,14 +99,14 @@ sub finalize {
 sub finalize_session {
     my $c = shift;
 
+    $c->NEXT::finalize_session;
+
     $c->_save_session_id;
     $c->_save_session;
     $c->_save_flash;
     $c->_save_session_expires;
 
     $c->_clear_session_instance_data;
-
-    $c->NEXT::finalize_session;
 }
 
 sub _save_session_id {
@@ -261,7 +261,7 @@ sub _clear_session_instance_data {
 sub delete_session {
     my ( $c, $msg ) = @_;
 
-    $c->log->debug("Deleting session") if $c->debug;
+    $c->log->debug("Deleting session" . ( defined($msg) ? "($msg)" : '(no reason given)') ) if $c->debug;
 
     # delete the session data
     if ( my $sid = $c->sessionid ) {
@@ -386,6 +386,12 @@ sub flash {
         $c->create_session_id_if_needed;
         $c->_flash( {} );
     }
+}
+
+sub clear_flash {
+    my $c = shift;
+    $c->_flash_key_hashes({});
+    $c->_flash({});
 }
 
 sub session_expire_key {
@@ -638,6 +644,10 @@ of every request.
         
         }
     }
+
+=item clear_flash
+
+Zap all the keys in the flash regardless of their current state.
 
 =item keep_flash @keys
 
