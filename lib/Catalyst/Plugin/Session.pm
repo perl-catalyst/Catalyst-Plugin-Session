@@ -390,7 +390,10 @@ sub flash {
 
 sub clear_flash {
     my $c = shift;
+    
+    #$c->delete_session_data("flash:" . $c->sessionid); # should this be in here? or delayed till finalization?
     $c->_flash_key_hashes({});
+    $c->_flash_keep_keys({});
     $c->_flash({});
 }
 

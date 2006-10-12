@@ -19,8 +19,8 @@ $c->mock(
         return $key =~ /expire/ ? time() + 1000 : $flash;
     },
 );
-$c->set_true("store_session_data");
-$c->set_true("delete_session_data");
+$c->mock("store_session_data" => sub { $flash = $_[2] });
+$c->mock("delete_session_data" => sub { $flash = {} });
 $c->set_always( _sessionid => "deadbeef" );
 $c->set_always( config     => { session => { expires => 1000 } } );
 $c->set_always( stash      => {} );

@@ -3,7 +3,7 @@ Revision history for Perl extension Catalyst::Plugin::Session
 0.13
         - Rerelease with slightly changed test due to a behavior change in
           Test::MockObject
-        - add `clear_flash` (still waiting for tests, mr. Rob Kinyon!)
+        - add `clear_flash`
         - improve debug logging
 
 0.12
