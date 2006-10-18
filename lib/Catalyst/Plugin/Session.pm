@@ -68,7 +68,7 @@ sub setup_session {
 
     %$cfg = (
         expires        => 7200,
-        verify_address => 1,
+        verify_address => 0,
         %$cfg,
     );
 
@@ -861,6 +861,8 @@ hours).
 
 When true, C<<$c->request->address>> will be checked at prepare time. If it is
 not the same as the address that initiated the session, the session is deleted.
+
+Defaults to false.
 
 =item flash_to_stash
 
