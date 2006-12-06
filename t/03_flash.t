@@ -33,7 +33,7 @@ $c->finalize;
 
 is_deeply( $c->flash, { foo => "moose" }, "one key in flash" );
 
-$c->flash->{bar} = "gorch";
+$c->flash(bar => "gorch");
 
 is_deeply( $c->flash, { foo => "moose", bar => "gorch" }, "two keys in flash" );
 

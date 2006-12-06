@@ -380,12 +380,28 @@ sub keep_flash {
     (@{$href}{@keys}) = ((undef) x @keys);
 }
 
-sub flash {
+sub _flash_data { 
     my $c = shift;
     $c->_flash || $c->_load_flash || do {
         $c->create_session_id_if_needed;
         $c->_flash( {} );
+    };
+}
+
+sub _set_flash {
+    my $c = shift;
+    if (@_) {
+        my $items = @_ > 1 ? {@_} : $_[0];
+        croak('flash takes a hash or hashref') unless ref $items;
+        @{ $c->_flash }{ keys %$items } = values %$items;
     }
+}
+
+sub flash {
+    my $c = shift;
+    $c->_flash_data;
+	$c->_set_flash(@_);
+	return $c->_flash;
 }
 
 sub clear_flash {
