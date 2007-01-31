@@ -1,5 +1,9 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+0.14    2007-01-31 12:19:00
+        - Disable verify_address.
+        - update flash to work like session
+
 0.13
         - Rerelease with slightly changed test due to a behavior change in
           Test::MockObject
