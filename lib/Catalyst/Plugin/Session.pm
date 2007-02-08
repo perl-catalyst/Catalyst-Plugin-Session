@@ -11,6 +11,7 @@ use Catalyst::Exception ();
 use Digest              ();
 use overload            ();
 use Object::Signature   ();
+use Carp;
 
 our $VERSION = "0.14";
 
