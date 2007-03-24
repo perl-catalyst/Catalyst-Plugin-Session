@@ -35,7 +35,7 @@ HTTP has a feature that lets this become easier, called cookies. A cookie is
 something the server asks the client to save somewhere, and resend every time a
 request is made.
 
-They way they work is that the server sends the C<Set-Cookie> header, with a
+The way they work is that the server sends the C<Set-Cookie> header, with a
 cookie name, a value, and some meta data (like when it expires, what paths it
 applies to, etc). The client saves this.
 
@@ -99,7 +99,7 @@ application:
 This loads the session API, as well as the required backends of your choice.
 
 After the plugins are loaded they need to be configured. This is done according
-to L<Catalyst::Manual::Tutorial/Configuring>.
+to L<Catalyst::Manual::Cookbook/Configure_your_application>.
 
 Each backend plugin requires it's own configuration options (with most plugins
 providing sensible defaults). The session API itself also has configurable
