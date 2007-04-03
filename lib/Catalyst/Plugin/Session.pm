@@ -583,7 +583,7 @@ made by the same client.
 
 This plugin links the two pieces together.
 
-=head1 RECCOMENDED BACKENDS
+=head1 RECOMENDED BACKENDS
 
 =over 4
 
