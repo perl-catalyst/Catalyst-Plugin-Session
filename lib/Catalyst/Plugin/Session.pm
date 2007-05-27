@@ -92,9 +92,9 @@ sub prepare_action {
 sub finalize {
     my $c = shift;
 
-    $c->finalize_session;
-    
     $c->NEXT::finalize(@_);
+
+    $c->finalize_session;
 }
 
 sub finalize_session {
