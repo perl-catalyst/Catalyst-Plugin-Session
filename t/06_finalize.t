@@ -3,12 +3,13 @@
 use strict;
 use warnings;
 
-use Test::More tests => 2;
+use Test::More tests => 3;
+
+my $finalized = 0;
 
 {
   package TestPlugin;
 
-  my $finalized = 0;
   sub finalize_session { $finalized = 1 }
 
   sub finalize { die "already finalized_session()" if $finalized }
@@ -28,3 +29,4 @@ BEGIN { use_ok('Catalyst::Plugin::Session') }
 my $c = TestApp->new;
 eval { $c->finalize };
 ok(!$@, "finalize_session() called after all other finalize() methods");
+ok($finalized, "finalize_session() called");
