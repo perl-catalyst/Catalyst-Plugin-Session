@@ -1,12 +1,10 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
-0.16    2007-05-27
-        - Changed finalize() to redispatch before saving session
-          so other finalize methods still have access to it.
-     
-0.15    2007-04-04 23:10:00
+0.15
         - Fix the bug that caused sessions to expire immediately when another
           session was deleted previously in the same request cycle
+        - Changed finalize() to redispatch before saving session
+          so other finalize methods still have access to it.
 
 0.14    2007-01-31 12:19:00
         - Disable verify_address.
