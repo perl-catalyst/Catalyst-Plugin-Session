@@ -8,8 +8,8 @@ my %state = (
 my @extra;
 
 foreach my $module (keys %state) {
-    unless ( eval "require Catalyst::Plugin::Session::State::$module" and
-    eval { "Catalyst::Plugin::Session::State::$module"->VERSION($state{$module}) } ) {
+    if ( eval "require Catalyst::Plugin::Session::State::$module" and
+    not eval { "Catalyst::Plugin::Session::State::$module"->VERSION($state{$module}) } ) {
         warn <<WARN;
 
 ********** NOTE **********
