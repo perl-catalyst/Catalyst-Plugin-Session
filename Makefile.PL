@@ -20,7 +20,7 @@ Catalyst::Plugin::Session::State::$module must also be updated!
 The currently installed version is *not* compatible with this version of
 Catalyst::Plugin::Session!
 
-The updated versions hae been added to the prerequisites.
+The updated versions have been added to the prerequisites.
 
 **************************
 **************************
