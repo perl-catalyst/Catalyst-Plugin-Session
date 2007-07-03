@@ -13,7 +13,7 @@ use overload            ();
 use Object::Signature   ();
 use Carp;
 
-our $VERSION = "0.15";
+our $VERSION = "0.16";
 
 my @session_data_accessors; # used in delete_session
 BEGIN {

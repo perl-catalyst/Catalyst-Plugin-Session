@@ -1,5 +1,8 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+0.16
+        - Stupid makefile
+
 0.15
         - Fix the bug that caused sessions to expire immediately when another
           session was deleted previously in the same request cycle
