@@ -3,7 +3,15 @@
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More;
+
+BEGIN {
+    if ( eval { require Catalyst::Plugin::Session::State::Cookie } ) {
+        plan tests => 3;
+    } else {
+        plan skip_all => "Catalyst::Plugin::Session::State::Cookie required";
+    }
+}
 
 my $finalized = 0;
 

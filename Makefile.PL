@@ -9,7 +9,7 @@ my @extra;
 
 foreach my $module (keys %state) {
     if ( eval "require Catalyst::Plugin::Session::State::$module" and
-    not eval { "Catalyst::Plugin::Session::State::$module"->VERSION($state{$module}) } ) {
+    ${"Catalyst::Plugin::Session::State::${module}::VERSION"} < $state{$module} ) {
         warn <<WARN;
 
 ********** NOTE **********
