@@ -1,5 +1,8 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+0.18
+        - http://rt.cpan.org/Public/Bug/Display.html?id=28845
+
 0.17
         - Skip a test if Cookie is not installed
 
