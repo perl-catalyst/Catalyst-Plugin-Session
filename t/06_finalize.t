@@ -17,6 +17,7 @@ my $finalized = 0;
 
 {
   package TestPlugin;
+  BEGIN { $INC{"TestPlugin.pm"} = 1 }
 
   sub finalize_session { $finalized = 1 }
 
