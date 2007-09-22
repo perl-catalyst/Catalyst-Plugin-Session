@@ -89,14 +89,12 @@ sub prepare_action {
     $c->NEXT::prepare_action(@_);
 }
 
-sub finalize {
+sub finalize_headers {
     my $c = shift;
-
-    my $ret = $c->NEXT::finalize(@_);
 
     $c->finalize_session;
 
-    return $ret;
+    return $c->NEXT::finalize_headers(@_);
 }
 
 sub finalize_session {
@@ -745,7 +743,7 @@ It's only effect is if the (off by default) C<flash_to_stash> configuration
 parameter is on - then it will copy the contents of the flash to the stash at
 prepare time.
 
-=item finalize
+=item finalize_headers
 
 This method is extended and will extend the expiry time, as well as persist the
 session data if a session exists.
