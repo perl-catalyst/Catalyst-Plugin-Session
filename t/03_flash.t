@@ -29,7 +29,7 @@ is_deeply( $c->flash, {}, "nothing in flash" );
 
 $c->flash->{foo} = "moose";
 
-$c->finalize;
+$c->finalize_headers;
 
 is_deeply( $c->flash, { foo => "moose" }, "one key in flash" );
 
@@ -37,21 +37,21 @@ $c->flash(bar => "gorch");
 
 is_deeply( $c->flash, { foo => "moose", bar => "gorch" }, "two keys in flash" );
 
-$c->finalize;
+$c->finalize_headers;
 
 is_deeply( $c->flash, { bar => "gorch" }, "one key in flash" );
 
-$c->finalize;
+$c->finalize_headers;
 
 $c->flash->{test} = 'clear_flash';
 
-$c->finalize;
+$c->finalize_headers;
 
 $c->clear_flash();
 
 is_deeply( $c->flash, {}, "nothing in flash after clear_flash" );
 
-$c->finalize;
+$c->finalize_headers;
 
 is_deeply( $c->flash, {}, "nothing in flash after finalize after clear_flash" );
 
@@ -59,7 +59,7 @@ $c->flash->{bar} = "gorch";
 
 $c->config->{session}{flash_to_stash} = 1;
 
-$c->finalize;
+$c->finalize_headers;
 $c->prepare_action;
 
 is_deeply( $c->stash, { bar => "gorch" }, "flash copied to stash" );
