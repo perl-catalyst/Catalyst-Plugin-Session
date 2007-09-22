@@ -410,8 +410,8 @@ sub _set_flash {
 sub flash {
     my $c = shift;
     $c->_flash_data;
-	$c->_set_flash(@_);
-	return $c->_flash;
+    $c->_set_flash(@_);
+    return $c->_flash;
 }
 
 sub clear_flash {
