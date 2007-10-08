@@ -31,7 +31,7 @@ WriteMakefile
           'NAME' => 'Catalyst::Plugin::Session',
           'VERSION_FROM' => 'lib/Catalyst/Plugin/Session.pm',
           'PREREQ_PM' => {
-                           'Catalyst' => '5.49',
+                           'Catalyst' => '5.7010',
                            'Digest' => '0',
                            'File::Spec' => '0',
                            'File::Temp' => '0',
