@@ -680,7 +680,7 @@ Zap all the keys in the flash regardless of their current state.
 
 =item keep_flash @keys
 
-If you wawnt to keep a flash key for the next request too, even if it hasn't
+If you want to keep a flash key for the next request too, even if it hasn't
 changed, call C<keep_flash> and pass in the keys as arguments.
 
 =item delete_session REASON
