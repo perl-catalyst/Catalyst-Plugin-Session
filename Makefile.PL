@@ -1,17 +1,46 @@
-use ExtUtils::MakeMaker;
+use inc::Module::Install 0.68;
 
-my %state = (
-    Cookie => 0.03,
-    URI    => 0.02,
-);
+if ( -e 'MANIFEST.SKIP' ) {
+    system( 'pod2text lib/Catalyst/Plugin/Session.pm > README' );
+}
 
-foreach my $module (keys %state) {
-    if ( eval "require Catalyst::Plugin::Session::State::$module" and
-    ${"Catalyst::Plugin::Session::State::${module}::VERSION"} < $state{$module} ) {
-        warn <<WARN;
+is_upgrading_needed();
+
+perl_version '5.008';
+
+name 'Catalyst-Plugin-Session';
+all_from 'lib/Catalyst/Plugin/Session.pm';
+
+requires 'Catalyst::Runtime' => '5.7010';
+requires 'Digest';
+requires 'File::Spec';
+requires 'File::Temp';
+requires 'Object::Signature';
+
+# an indirect dep. needs a certain version.
+requires 'Tie::Refhash' => '1.34';
+
+# for Test::Store
+requires 'Test::More';
+
+test_requires 'Test::Deep';
+test_requires 'Test::Exception';
+test_requires 'Test::MockObject' => '1.01';
+
+WriteAll;
+
+sub is_upgrading_needed {
+    my %state = (
+        Cookie => 0.03,
+        URI    => 0.02,
+    );
+
+    foreach my $module (keys %state) {
+        if ( eval "require Catalyst::Plugin::Session::State::$module" and
+        ${"Catalyst::Plugin::Session::State::${module}::VERSION"} < $state{$module} ) {
+            warn <<WARN;
 
 ********** NOTE **********
-**************************
 
 Catalyst::Plugin::Session::State::$module must also be updated!
 
@@ -21,32 +50,7 @@ Catalyst::Plugin::Session!
 The updated versions have been added to the prerequisites.
 
 **************************
-**************************
 WARN
+        }
     }
 }
-
-WriteMakefile
-(
-          'NAME' => 'Catalyst::Plugin::Session',
-          'VERSION_FROM' => 'lib/Catalyst/Plugin/Session.pm',
-          'PREREQ_PM' => {
-                           'Catalyst' => '5.7010',
-                           'Digest' => '0',
-                           'File::Spec' => '0',
-                           'File::Temp' => '0',
-                           'Object::Signature' => '0',
-                           'Test::Deep' => '0',
-                           'Test::Exception' => '0',
-                           'Test::MockObject' => '1.01',
-                           'Test::More' => '0',
-                           'Tie::RefHash' => '1.34',
-                         },
-          'INSTALLDIRS' => 'site',
-          'EXE_FILES' => [],
-          'SIGN'      => 1,
-          'PL_FILES'  => {}
-        )
-;
-
-

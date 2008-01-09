@@ -1,5 +1,10 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+0.20    XXX
+        - Switch to Module::install
+
+0.19    2007-10-08
+
 0.18    2007-08-15
         - Fix Apache engine issue (RT #28845)
 

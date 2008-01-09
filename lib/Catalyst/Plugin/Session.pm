@@ -13,7 +13,7 @@ use overload            ();
 use Object::Signature   ();
 use Carp;
 
-our $VERSION = "0.19";
+our $VERSION = '0.20';
 
 my @session_data_accessors; # used in delete_session
 BEGIN {
@@ -530,8 +530,7 @@ __END__
 
 =head1 NAME
 
-Catalyst::Plugin::Session - Generic Session plugin - ties together server side
-storage and client side state required to maintain session data.
+Catalyst::Plugin::Session - Generic Session plugin - ties together server side storage and client side state required to maintain session data.
 
 =head1 SYNOPSIS
 
@@ -543,11 +542,11 @@ storage and client side state required to maintain session data.
       Session::State::Cookie
       /;
 
-	# you can replace Store::FastMmap with Store::File - both have sensible
-	# default configurations (see their docs for details)
+    # you can replace Store::FastMmap with Store::File - both have sensible
+    # default configurations (see their docs for details)
 
-	# more complicated backends are available for other scenarios (DBI storage,
-	# etc)
+    # more complicated backends are available for other scenarios (DBI storage,
+    # etc)
 
 
     # after you've loaded the plugins you can save session data
@@ -795,25 +794,15 @@ Currently it returns a concatenated string which contains:
 
 =over 4
 
-=item *
+=item * A counter
 
-A counter
+=item * The current time
 
-=item *
+=item * One value from C<rand>.
 
-The current time
+=item * The stringified value of a newly allocated hash reference
 
-=item *
-
-One value from C<rand>.
-
-=item *
-
-The stringified value of a newly allocated hash reference
-
-=item *
-
-The stringified value of the Catalyst context object
+=item * The stringified value of the Catalyst context object
 
 =back
 
@@ -882,16 +871,16 @@ State plugins must set $c->session ID before C<prepare_action>, and during
 C<prepare_action> L<Catalyst::Plugin::Session> will actually load the data from
 the store.
 
-	sub prepare_action {
-		my $c = shift;
+    sub prepare_action {
+        my $c = shift;
 
-		# don't touch $c->session yet!
+        # don't touch $c->session yet!
 
-		$c->NEXT::prepare_action( @_ );
+        $c->NEXT::prepare_action( @_ );
 
-		$c->session;  # this is OK
-		$c->sessionid; # this is also OK
-	}
+        $c->session;  # this is OK
+        $c->sessionid; # this is also OK
+    }
 
 =head1 CONFIGURATION
 
@@ -1009,25 +998,21 @@ plugin should be safe enough.
 
 =head1 AUTHORS
 
-=over 4
+Andy Grundman
 
-=item Andy Grundman
+Christian Hansen
 
-=item Christian Hansen
+Yuval Kogman, C<nothingmuch@woobling.org> (current maintainer)
 
-=item Yuval Kogman, C<nothingmuch@woobling.org> (current maintainer)
-
-=item Sebastian Riedel
-
-=back
+Sebastian Riedel
 
 And countless other contributers from #catalyst. Thanks guys!
 
 =head1 COPYRIGHT & LICENSE
 
-	Copyright (c) 2005 the aforementioned authors. All rights
-	reserved. This program is free software; you can redistribute
-	it and/or modify it under the same terms as Perl itself.
+    Copyright (c) 2005 the aforementioned authors. All rights
+    reserved. This program is free software; you can redistribute
+    it and/or modify it under the same terms as Perl itself.
 
 =cut
 
