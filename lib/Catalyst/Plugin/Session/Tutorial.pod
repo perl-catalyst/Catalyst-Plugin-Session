@@ -6,23 +6,23 @@ Catalyst::Plugin::Session::Tutorial - Understanding and using sessions.
 
 =head1 ASSUMPTIONS
 
-This tutorial assumes that you are familiar with web applications in general
-and Catalyst specifically (up to models and configuration), that you know what
-HTTP is.
+This tutorial assumes that you are familiar with web applications in
+general and Catalyst specifically (up to models and configuration), and
+that you know what HTTP is.
 
 =head1 WHAT ARE SESSIONS
 
 When users use a site, especially one that knows who they are (sites you log in
-to, sites which let you keep a shopping cart, etc), the server preparing the
+to, sites which let you keep a shopping cart, etc.), the server preparing the
 content has to know that request X comes from client A while request Y comes
-from client B, so that each user gets the content most appropriate for it.
+from client B, so that each user gets the content meant for it.
 
 The problem is that HTTP is a stateless protocol. This means that every request
 is distinct, and even if it comes from the same client, it's difficult to know
 that.
 
 The way sessions are maintained between distinct requests is that the client
-says, for every request "I'm client A" or "I'm client B".
+says, for every request, "I'm client A" or "I'm client B".
 
 This piece of data that tells the server "I'm X" is called the session ID, and
 the threading of several requests together is called a session.
@@ -36,8 +36,8 @@ something the server asks the client to save somewhere, and resend every time a
 request is made.
 
 The way they work is that the server sends the C<Set-Cookie> header, with a
-cookie name, a value, and some meta data (like when it expires, what paths it
-applies to, etc). The client saves this.
+cookie name, a value, and some metadata (like when it expires, what paths it
+applies to, etc.). The client saves this.
 
 Then, on every subsequent request the client will send a C<Cookie> header, with
 the cookie name and value.
@@ -52,9 +52,9 @@ This can be as either a part of the path, or as a query parameter.
 This technique has several issues which are discussed in
 L<Catalyst::Plugin::Session::State::URI/CAVEATS>.
 
-=head2 Server-side Behavior
+=head2 Server-Side Behavior
 
-When the server receives the session ID it can then look this key up into a
+When the server receives the session ID it can then look this key up in a
 database of some sort. For example the database can contain a shopping cart's
 contents, user preferences, etc.
 
@@ -101,13 +101,13 @@ This loads the session API, as well as the required backends of your choice.
 After the plugins are loaded they need to be configured. This is done according
 to L<Catalyst::Manual::Cookbook/Configure_your_application>.
 
-Each backend plugin requires it's own configuration options (with most plugins
+Each backend plugin requires its own configuration options (with most plugins
 providing sensible defaults). The session API itself also has configurable
 options listed in L<Catalyst::Plugin::Session/CONFIGURATION>.
 
 For the plugins above we don't need any configuration at all - they should work
-out of the box, but suppose we did want to change some things arond, it'll look
-like this:
+out of the box, but suppose we did want to change some things around, it'll 
+look like this:
 
     MyApp->config( session => {
         cookie_name => "my_fabulous_cookie",
@@ -150,19 +150,19 @@ to see if a session ID is set. This session ID will be set by the State plugin
 if appropriate, at the start of the request (e.g. by looking at the cookies
 sent by the client).
 
-If a session ID is set then the store will be asked to retrieve the session
+If a session ID is set, the store will be asked to retrieve the session
 data for that specific session ID, and this is returned from
 C<< $c->session >>. This retrieval is cached, and will only happen once per
 request, if at all.
 
-If a session ID is not set, then one is generated, a new anonymous hash is
+If a session ID is not set, a new one is generated, a new anonymous hash is
 created and saved in the store with the session ID as the key, and the
 reference to the hash is returned.
 
 The action above takes this hash reference, and updates a nested hash within
 it, that counts quantity of each item as stored in the cart.
 
-Any cart listing code can then look into the session data and use it to display
+Any cart-listing code can then look into the session data and use it to display
 the correct items, which will, of course, be remembered across requests.
 
 Here is an action some Template Toolkit example code that could be used to
@@ -202,7 +202,7 @@ And [a part of] the template it forwards to:
         [%# the table body lists all the items in the cart %]
         [% FOREACH item_id = cart.items.keys %]
 
-            [%# each item has it's own row in the table %]
+            [%# each item has its own row in the table %]
 
             [% item = cart.items.$item_id %]
             [% quantity = cart.quantity.$item_id %]
@@ -259,7 +259,7 @@ but are here for their educational value.
 
 =head2 (Not) Trusting the Client
 
-In order to avoid the overhead of serverside data storage, the session data can
+In order to avoid the overhead of server-side data storage, the session data can
 be included in the cookie itself.
 
 There are two problems with this:
@@ -303,7 +303,7 @@ community sites, where users can cause the server to display arbitrary HTML,
 they can use this to put JavaScript code on the server.
 
 If the server does not enforce a strict subset of tags that may be used, the
-malicious user could use this code to steal the cookies (there is a javascript
+malicious user could use this code to steal the cookies (there is a JavaScript
 API that lets cookies be accessed, but this code has to be run on the same
 website that the cookie came from).
 

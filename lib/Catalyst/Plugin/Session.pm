@@ -745,9 +745,9 @@ listed in L</CONFIGURATION>.
 
 =item prepare_action
 
-This methoid is extended.
+This method is extended.
 
-It's only effect is if the (off by default) C<flash_to_stash> configuration
+Its only effect is if the (off by default) C<flash_to_stash> configuration
 parameter is on - then it will copy the contents of the flash to the stash at
 prepare time.
 
@@ -768,7 +768,7 @@ called by the C<session> method if appropriate.
 
 =item create_session_id
 
-Creates a new session id using C<generate_session_id> if there is no session ID
+Creates a new session ID using C<generate_session_id> if there is no session ID
 yet.
 
 =item validate_session_id SID
@@ -783,7 +783,7 @@ insensitive hexadecimal characters.
 This method will return a string that can be used as a session ID. It is
 supposed to be a reasonably random string with enough bits to prevent
 collision. It basically takes C<session_hash_seed> and hashes it using SHA-1,
-MD5 or SHA-256, depending on the availibility of these modules.
+MD5 or SHA-256, depending on the availability of these modules.
 
 =item session_hash_seed
 
@@ -806,7 +806,7 @@ Currently it returns a concatenated string which contains:
 
 =back
 
-In the hopes that those combined values are entropic enough for most uses. If
+in the hopes that those combined values are entropic enough for most uses. If
 this is not the case you can replace C<session_hash_seed> with e.g.
 
     sub session_hash_seed {
@@ -951,13 +951,13 @@ users' sessions cannot persist.
 To let these users access your site you can either disable address verification
 as a whole, or provide a checkbox in the login dialog that tells the server
 that it's OK for the address of the client to change. When the server sees that
-this box is checked it should delete the C<__address> sepcial key from the
+this box is checked it should delete the C<__address> special key from the
 session hash when the hash is first created.
 
 =head2 Race Conditions
 
-In this day and age where cleaning detergents and dutch football (not the
-american kind) teams roam the plains in great numbers, requests may happen
+In this day and age where cleaning detergents and Dutch football (not the
+American kind) teams roam the plains in great numbers, requests may happen
 simultaneously. This means that there is some risk of session data being
 overwritten, like this:
 
@@ -965,7 +965,7 @@ overwritten, like this:
 
 =item 1.
 
-request a starts, request b starts, with the same session id
+request a starts, request b starts, with the same session ID
 
 =item 2.
 
@@ -990,7 +990,7 @@ changes by request a
 
 =back
 
-If this is a concern in your application, a soon to be developed locking
+If this is a concern in your application, a soon-to-be-developed locking
 solution is the only safe way to go. This will have a bigger overhead.
 
 For applications where any given user is only making one request at a time this
