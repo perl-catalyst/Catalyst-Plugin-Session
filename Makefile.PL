@@ -18,7 +18,7 @@ requires 'File::Temp';
 requires 'Object::Signature';
 
 # an indirect dep. needs a certain version.
-requires 'Tie::Refhash' => '1.34';
+requires 'Tie::RefHash' => '1.34';
 
 # for Test::Store
 requires 'Test::More';
