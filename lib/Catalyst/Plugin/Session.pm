@@ -168,12 +168,15 @@ sub _save_flash {
         
         my $sid = $c->sessionid;
 
+        my $session_data = $c->_session;
         if (%$flash_data) {
-            $c->store_session_data( "flash:$sid", $flash_data );
+            $session_data->{__flash} = $flash_data;
         }
         else {
-            $c->delete_session_data("flash:$sid");
+            delete $session_data->{__flash};
         }
+        $c->_session($session_data);
+        $c->_save_session;
     }
 }
 
@@ -238,8 +241,11 @@ sub _load_flash {
     $c->_tried_loading_flash_data(1);
 
     if ( my $sid = $c->sessionid ) {
-        if ( my $flash_data = $c->_flash
-            || $c->_flash( $c->get_session_data("flash:$sid") ) )
+
+        my $session_data = $c->session;
+        $c->_flash($session_data->{__flash});
+
+        if ( my $flash_data = $c->_flash )
         {
             $c->_flash_key_hashes({ map { $_ => Object::Signature::signature( \$flash_data->{$_} ) } keys %$flash_data });
             
@@ -686,6 +692,8 @@ changed, call C<keep_flash> and pass in the keys as arguments.
 
 This method is used to invalidate a session. It takes an optional parameter
 which will be saved in C<session_delete_reason> if provided.
+
+NOTE: This method will B<also> delete your flash data.
 
 =item session_delete_reason
 
