@@ -98,13 +98,15 @@ sub finalize_headers {
     return $c->NEXT::finalize_headers(@_);
 }
 
-sub finalize {
+sub finalize_body {
     my $c = shift;
-    my $ret = $c->NEXT::finalize(@_);
 
-    # then finish the rest
+    # We have to finalize our session *before* $c->engine->finalize_xxx is called,
+    # because we do not want to send the HTTP response before the session is stored/committed to
+    # the session database (or whatever Session::Store you use).
     $c->finalize_session;
-    return $ret;
+
+    return $c->NEXT::finalize_body(@_);
 }
 
 sub finalize_session {
@@ -756,10 +758,10 @@ prepare time.
 This method is extended and will extend the expiry time before sending
 the response.
 
-=item finalize
+=item finalize_body
 
-This method is extended and will call finalize_session after the other
-finalizes run.  Here we persist the session data if a session exists.
+This method is extended and will call finalize_session before the other
+finalize_body methods run.  Here we persist the session data if a session exists.
 
 =item initialize_session_data
 
