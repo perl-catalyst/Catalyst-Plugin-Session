@@ -19,6 +19,7 @@ $log->set_true("fatal");
 {
 
     package MockCxt;
+    use MRO::Compat;
     use base $m;
     sub new { bless {}, $_[0] }
     sub config { \%config }

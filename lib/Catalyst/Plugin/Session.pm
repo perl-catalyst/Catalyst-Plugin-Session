@@ -6,7 +6,7 @@ use base qw/Class::Accessor::Fast/;
 use strict;
 use warnings;
 
-use NEXT;
+use MRO::Compat;
 use Catalyst::Exception ();
 use Digest              ();
 use overload            ();
@@ -39,7 +39,7 @@ BEGIN {
 sub setup {
     my $c = shift;
 
-    $c->NEXT::setup(@_);
+    $c->maybe::next::method(@_);
 
     $c->check_session_plugin_requirements;
     $c->setup_session;
@@ -73,7 +73,7 @@ sub setup_session {
         %$cfg,
     );
 
-    $c->NEXT::setup_session();
+    $c->maybe::next::method();
 }
 
 sub prepare_action {
@@ -86,7 +86,7 @@ sub prepare_action {
         @{ $c->stash }{ keys %$flash_data } = values %$flash_data;
     }
 
-    $c->NEXT::prepare_action(@_);
+    $c->maybe::next::method(@_);
 }
 
 sub finalize_headers {
@@ -95,7 +95,7 @@ sub finalize_headers {
     # fix cookie before we send headers
     $c->_save_session_expires;
 
-    return $c->NEXT::finalize_headers(@_);
+    return $c->maybe::next::method(@_);
 }
 
 sub finalize_body {
@@ -106,13 +106,13 @@ sub finalize_body {
     # the session database (or whatever Session::Store you use).
     $c->finalize_session;
 
-    return $c->NEXT::finalize_body(@_);
+    return $c->maybe::next::method(@_);
 }
 
 sub finalize_session {
     my $c = shift;
 
-    $c->NEXT::finalize_session;
+    $c->maybe::next::method(@_);
 
     $c->_save_session_id;
     $c->_save_session;
@@ -273,7 +273,7 @@ sub _expire_session_keys {
 sub _clear_session_instance_data {
     my $c = shift;
     $c->$_(undef) for @session_data_accessors;
-    $c->NEXT::_clear_session_instance_data; # allow other plugins to hook in on this
+    $c->maybe::next::method(@_); # allow other plugins to hook in on this
 }
 
 sub delete_session {
@@ -516,7 +516,7 @@ sub dump_these {
     my $c = shift;
 
     (
-        $c->NEXT::dump_these(),
+        $c->maybe::next::method(),
 
         $c->sessionid
         ? ( [ "Session ID" => $c->sessionid ], [ Session => $c->session ], )
@@ -525,10 +525,10 @@ sub dump_these {
 }
 
 
-sub get_session_id { shift->NEXT::get_session_id(@_) }
-sub set_session_id { shift->NEXT::set_session_id(@_) }
-sub delete_session_id { shift->NEXT::delete_session_id(@_) }
-sub extend_session_id { shift->NEXT::extend_session_id(@_) }
+sub get_session_id { shift->maybe::next::method(@_) }
+sub set_session_id { shift->maybe::next::method(@_) }
+sub delete_session_id { shift->maybe::next::method(@_) }
+sub extend_session_id { shift->maybe::next::method(@_) }
 
 __PACKAGE__;
 
