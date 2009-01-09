@@ -1,7 +1,8 @@
 use inc::Module::Install 0.68;
 
 if ( -e 'MANIFEST.SKIP' ) {
-    system( 'pod2text lib/Catalyst/Plugin/Session.pm > README' );
+    system( 'pod2text lib/Catalyst/Plugin/Session.pm > README' )
+        and die("Could not run pod2text on lib/Catalyst/Plugin/Session.pm");
 }
 
 is_upgrading_needed();
