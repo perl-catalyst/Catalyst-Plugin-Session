@@ -16,6 +16,7 @@ requires 'Digest';
 requires 'File::Spec';
 requires 'File::Temp';
 requires 'Object::Signature';
+requires 'MRO::Compat';
 
 # an indirect dep. needs a certain version.
 requires 'Tie::RefHash' => '1.34';
