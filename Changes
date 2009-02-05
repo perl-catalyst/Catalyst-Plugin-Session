@@ -1,5 +1,11 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+0.20 2009-02-05
+        - No code changes since 0.19_01 dev release.
+        - Add IDEAS.txt which is an irc log of discussion about the next-generation
+          session plugin from discussion on #catalyst-dev
+        - Remove TODO file, which is no longer relevant.
+
 0.19_01 2009-01-09
         - Switch from using NEXT to Class::C3 for method re-dispatch.
         - Use shipit to package the dist.
