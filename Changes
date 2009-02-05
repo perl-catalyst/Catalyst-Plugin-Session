@@ -1,5 +1,8 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+0.21 Not released
+        - Hide the internal packages in Catalyst::Plugin::Session::Test::Store from PAUSE.
+
 0.20 2009-02-05
         - No code changes since 0.19_01 dev release.
         - Add IDEAS.txt which is an irc log of discussion about the next-generation

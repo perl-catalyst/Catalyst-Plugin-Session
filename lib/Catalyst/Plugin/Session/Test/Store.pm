@@ -28,7 +28,8 @@ sub import {
     isa_ok( bless( {}, $m ), "Catalyst::Plugin::Session::Store" );
 
     {
-        package Catalyst::Plugin::SessionStateTest;
+        package # Hide from PAUSE
+            Catalyst::Plugin::SessionStateTest;
         use base qw/Catalyst::Plugin::Session::State/;
 
         no strict 'refs';
@@ -51,7 +52,8 @@ sub import {
 
     {
 
-        package SessionStoreTest;
+        package # Hide from PAUSE
+            SessionStoreTest;
         use Catalyst qw/Session SessionStateTest/;
         push our (@ISA), $m;
 
@@ -95,7 +97,8 @@ sub import {
 
     {
 
-        package SessionStoreTest2;
+        package # Hide from PAUSE
+            SessionStoreTest2;
         use Catalyst qw/Session SessionStateTest/;
         push our (@ISA), $m;
 
@@ -139,7 +142,8 @@ sub import {
 
     {
 
-        package t1;
+        package # Hide from PAUSE
+            t1;
         use Catalyst::Test "SessionStoreTest";
 
         # idiotic void context warning workaround
@@ -151,7 +155,8 @@ sub import {
 
     {
 
-        package t2;
+        package # Hide fram PAUSE
+            t2;
         use Catalyst::Test "SessionStoreTest2";
 
         my $x = get("/create_session");
