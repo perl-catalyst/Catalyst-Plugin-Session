@@ -2,9 +2,6 @@
 
 package Catalyst::Plugin::Session;
 
-use strict;
-use warnings;
-
 use Moose;
 with 'MooseX::Emulate::Class::Accessor::Fast';
 use MRO::Compat;
@@ -13,6 +10,8 @@ use Digest              ();
 use overload            ();
 use Object::Signature   ();
 use Carp;
+
+use namespace::clean -except => 'meta';
 
 our $VERSION = '0.21';
 
