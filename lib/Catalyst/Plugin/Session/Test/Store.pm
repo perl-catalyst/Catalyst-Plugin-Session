@@ -1,4 +1,4 @@
-﻿#!/usr/bin/perl
+#!/usr/bin/perl
 
 package Catalyst::Plugin::Session::Test::Store;
 

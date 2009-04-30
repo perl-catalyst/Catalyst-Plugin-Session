@@ -1,11 +1,12 @@
 #!/usr/bin/perl
 
 package Catalyst::Plugin::Session;
-use base qw/Class::Accessor::Fast/;
 
 use strict;
 use warnings;
 
+use Moose;
+with 'MooseX::Emulate::Class::Accessor::Fast';
 use MRO::Compat;
 use Catalyst::Exception ();
 use Digest              ();
@@ -13,11 +14,11 @@ use overload            ();
 use Object::Signature   ();
 use Carp;
 
-our $VERSION = '0.20';
+our $VERSION = '0.21';
 
 my @session_data_accessors; # used in delete_session
-BEGIN {
-    __PACKAGE__->mk_accessors(
+
+__PACKAGE__->mk_accessors(
         "_session_delete_reason",
         @session_data_accessors = qw/
           _sessionid
@@ -33,8 +34,8 @@ BEGIN {
           _tried_loading_session_expires
           _tried_loading_flash_data
           /
-    );
-}
+);
+
 
 sub setup {
     my $c = shift;
