@@ -10,5 +10,4 @@ my $m; BEGIN { use_ok($m = "Catalyst::Plugin::Session") }
 
 can_ok($m, $_) for qw/sessionid session session_delete_reason/;
 
-diag("Testing Catalyst::Plugin::Session $Catalyst::Plugin::Session::VERSION");
 

@@ -80,3 +80,6 @@ $_->get_ok( "http://localhost/page", "get main page" ) for $ua1, $ua2;
 $ua1->content_contains( "please login", "ua1 not logged in" );
 $ua2->content_contains( "please login", "ua2 not logged in" );
 
+diag("Testing against Catalyst $Catalyst::VERSION");
+diag("Testing Catalyst::Plugin::Session $Catalyst::Plugin::Session::VERSION");
+
