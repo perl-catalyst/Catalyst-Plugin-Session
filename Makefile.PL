@@ -19,8 +19,8 @@ requires 'File::Spec';
 requires 'File::Temp';
 requires 'Object::Signature';
 requires 'MRO::Compat';
-requires 'Moose';
-requires 'MooseX::Emulate::Class::Accessor::Fast';
+requires 'MooseX::Emulate::Class::Accessor::Fast' => '0.00801';
+requires 'Moose' => '0.76';
 
 # an indirect dep. needs a certain version.
 requires 'Tie::RefHash' => '1.34';
