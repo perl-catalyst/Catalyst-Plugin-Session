@@ -1,6 +1,6 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
-0.21 Not released
+0.21 2009-04-30
         - Hide the internal packages in Catalyst::Plugin::Session::Test::Store from PAUSE.
         - Convert from CAF to Moose with Moosex::Emulate::Class::Accessor::Fast
 
