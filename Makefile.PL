@@ -12,7 +12,7 @@ perl_version '5.008';
 name 'Catalyst-Plugin-Session';
 all_from 'lib/Catalyst/Plugin/Session.pm';
 
-requires 'Catalyst::Runtime' => '5.7010';
+requires 'Catalyst::Runtime' => '5.71001';
 requires 'namespace::clean' => '0.10';
 requires 'Digest';
 requires 'File::Spec';
