@@ -92,7 +92,7 @@ sub import {
 
         @{ __PACKAGE__->config->{session} }{ keys %$cfg } = values %$cfg;
 
-        __PACKAGE__->setup;
+        { __PACKAGE__->setup; }; # INSANE HACK 
     }
 
     {
@@ -130,7 +130,7 @@ sub import {
 
         @{ __PACKAGE__->config->{session} }{ keys %$cfg } = values %$cfg;
 
-        __PACKAGE__->setup;
+        { __PACKAGE__->setup; }; # INSANE HACK
     }
 
     use Test::More;

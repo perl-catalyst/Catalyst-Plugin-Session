@@ -1,5 +1,17 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+0.22 2009-05-13
+        - INSANE HACK to ensure B::Hooks::EndOfScope inlines us a new method right now
+          in Catalyst::Plugin::Session::Test::Store for Catalyst 5.80004 compatibility. 
+
+          This change does not in any way affect normal users - it is just due to the
+          fairly crazy way that Catalyst::Plugin::Session::Test::Store works, and that
+          module is _only_ used for unit testing session store plugins pre-installation.
+
+          Session::Test::Store should be replaced with a more sane solution, and other
+          CPAN modules using it moved away from using it, but this change keeps stops
+          new Catalyst breaking other distributions right now.
+
 0.21 2009-04-30
         - Hide the internal packages in Catalyst::Plugin::Session::Test::Store from PAUSE.
         - Convert from CAF to Moose with Moosex::Emulate::Class::Accessor::Fast
