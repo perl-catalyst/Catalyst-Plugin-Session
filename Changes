@@ -1,0 +1,11 @@
+0.01:
+    * initial (internal) release
+
+0.02:
+    * check '$c->session->{__limit_session_to_this_visit}' before setting an
+      expiration time for the cookie.
+
+0.03:
+    * don't send No-Cache header over https - shouldn't be needed and break
+      document downloads on IE due to IE bug.
+

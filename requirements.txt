@@ -1,0 +1,14 @@
+
+
+__REQUIREMENTS__
+
+
+  * do not expend any server side resources for empty sessions
+  
+  * don't create a session cookie unless there is a session
+  
+  * be reluctant to write to the database (updating expiry etc)
+  
+  * allow us to distinguish between secure sessions and insecure ones.
+
+  * allow us to store flash in memcache only
