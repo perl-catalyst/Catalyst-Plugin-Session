@@ -1,5 +1,5 @@
 # auto-generated shipit config file.
 steps = FindVersion, ChangeVersion, CheckChangeLog, DistTest, Commit, Tag, MakeDist, UploadCPAN
 
-svn.tagpattern = http://dev.catalyst.perl.org/repos/Catalyst/tags/Catalyst-Plugin-Session/%v
+svn.tagpattern = http://dev.catalyst.perl.org/repos/Catalyst/Catalyst-Plugin-Session/0.00/tags/%v
 CheckChangeLog.files = Changes
