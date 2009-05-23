@@ -1,5 +1,9 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+        - Add a test case to prove that logging in with a session cookie still causes
+          a new cookie to be issued for you, proving that the code is not vulnerable
+          to a session fixation attack.
+
 0.22 2009-05-13
         - INSANE HACK to ensure B::Hooks::EndOfScope inlines us a new method right now
           in Catalyst::Plugin::Session::Test::Store for Catalyst 5.80004 compatibility. 
