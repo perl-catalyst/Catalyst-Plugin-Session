@@ -6,6 +6,11 @@ use Catalyst qw/Session Session::Store::Dummy Session::State::Cookie/;
 use strict;
 use warnings;
 
+__PACKAGE__->config->{session} = {
+    # needed for live_verify_user_agent.t; should be harmless for other tests 
+    verify_user_agent => 1,  
+};
+
 sub login : Global {
     my ( $self, $c ) = @_;
     $c->session;
@@ -28,6 +33,11 @@ sub page : Global {
     else {
         $c->res->output("please login");
     }
+}
+
+sub user_agent : Global {
+    my ( $self, $c ) = @_;
+    $c->res->output('UA=' . $c->req->user_agent);
 }
 
 __PACKAGE__->setup;
