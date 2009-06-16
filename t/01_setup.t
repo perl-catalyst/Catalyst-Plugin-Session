@@ -63,7 +63,7 @@ ok( !$log->called("fatal"), "no fatal error logged either" );
 
 cmp_deeply(
     [ keys %{ $config{session} } ],
-    bag(qw/expires verify_address/),
+    bag(qw/expires verify_address verify_user_agent/),
     "default values for config were populated in successful setup",
 );
 

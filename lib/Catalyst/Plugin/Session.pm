@@ -70,6 +70,7 @@ sub setup_session {
     %$cfg = (
         expires        => 7200,
         verify_address => 0,
+        verify_user_agent => 0,
         %$cfg,
     );
 
@@ -223,6 +224,17 @@ sub _load_session {
                       . $c->request->address . ")"
                 );
                 $c->delete_session("address mismatch");
+                return;
+            }
+            if (   $c->config->{session}{verify_user_agent}
+                && $session_data->{__user_agent} ne $c->request->user_agent )
+            {
+                $c->log->warn(
+                        "Deleting session $sid due to user agent mismatch ("
+                      . $session_data->{__user_agent} . " != "
+                      . $c->request->user_agent . ")"
+                );
+                $c->delete_session("user agent mismatch");
                 return;
             }
 
@@ -452,6 +464,11 @@ sub initialize_session_data {
             (
                 $c->config->{session}{verify_address}
                 ? ( __address => $c->request->address )
+                : ()
+            ),
+            (
+                $c->config->{session}{verify_user_agent}
+                ? ( __user_agent => $c->request->user_agent )
                 : ()
             ),
         }
@@ -915,6 +932,14 @@ not the same as the address that initiated the session, the session is deleted.
 
 Defaults to false.
 
+=item verify_user_agent
+
+When true, C<<$c->request->user_agent>> will be checked at prepare time. If it
+is not the same as the user agent that initiated the session, the session is 
+deleted.
+
+Defaults to false.
+
 =item flash_to_stash
 
 This option makes it easier to have actions behave the same whether they were
@@ -946,6 +971,11 @@ The time when the session was first created.
 
 The value of C<< $c->request->address >> at the time the session was created.
 This value is only populated if C<verify_address> is true in the configuration.
+
+=item __user_agent
+
+The value of C<< $c->request->user_agent>> at the time the session was created.
+This value is only populated if C<verify_user_agent> is true in the configuration.
 
 =back
 
