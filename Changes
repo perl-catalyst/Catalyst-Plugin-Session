@@ -1,5 +1,6 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+0.23 2009-06-16
         - Add the verify_user_agent config parameter (kmx)
         - Add a test case to prove that logging in with a session cookie still 
           causes a new cookie to be issued for you, proving that the code is

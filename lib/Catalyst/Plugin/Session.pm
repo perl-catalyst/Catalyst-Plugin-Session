@@ -13,7 +13,7 @@ use Carp;
 
 use namespace::clean -except => 'meta';
 
-our $VERSION = '0.22';
+our $VERSION = '0.23';
 
 my @session_data_accessors; # used in delete_session
 
@@ -974,7 +974,7 @@ This value is only populated if C<verify_address> is true in the configuration.
 
 =item __user_agent
 
-The value of C<< $c->request->user_agent>> at the time the session was created.
+The value of C<< $c->request->user_agent >> at the time the session was created.
 This value is only populated if C<verify_user_agent> is true in the configuration.
 
 =back

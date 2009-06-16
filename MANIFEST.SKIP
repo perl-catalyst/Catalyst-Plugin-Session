@@ -4,6 +4,8 @@
 ,v$
 \B\.svn\b
 
+\bIDEAS.txt$
+
 # Avoid Makemaker generated and utility files.
 \bMakefile$
 \bblib
