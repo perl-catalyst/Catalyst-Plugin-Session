@@ -10,9 +10,12 @@ BEGIN {
       or plan skip_all =>
       "Catalyst::Plugin::Session::State::Cookie 0.03 or higher is required for this test";
 
-    eval { require Test::WWW::Mechanize::Catalyst }
-      or plan skip_all =>
-      "Test::WWW::Mechanize::Catalyst is required for this test";
+    eval {
+        require Test::WWW::Mechanize::Catalyst;
+        Test::WWW::Mechanize::Catalyst->VERSION(0.51);
+    }
+    or plan skip_all =>
+        'Test::WWW::Mechanize::Catalyst >= 0.51 is required for this test';
 
     plan tests => 12;
 }

@@ -13,7 +13,7 @@ use Carp;
 
 use namespace::clean -except => 'meta';
 
-our $VERSION = '0.23';
+our $VERSION = '0.24';
 
 my @session_data_accessors; # used in delete_session
 
@@ -463,12 +463,12 @@ sub initialize_session_data {
 
             (
                 $c->config->{session}{verify_address}
-                ? ( __address => $c->request->address )
+                ? ( __address => $c->request->address||'' )
                 : ()
             ),
             (
                 $c->config->{session}{verify_user_agent}
-                ? ( __user_agent => $c->request->user_agent )
+                ? ( __user_agent => $c->request->user_agent||'' )
                 : ()
             ),
         }

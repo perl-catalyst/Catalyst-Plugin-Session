@@ -1,5 +1,11 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+0.24 2009-06-23
+        - Be more paranoid about getting values of $c->req to avoid issues
+          with old Test::WWW::Mechanize::Catalyst.
+        - Check we have a modern version of TWMC before doing the tests which
+          need it.
+
 0.23 2009-06-16
         - Add the verify_user_agent config parameter (kmx)
         - Add a test case to prove that logging in with a session cookie still 
