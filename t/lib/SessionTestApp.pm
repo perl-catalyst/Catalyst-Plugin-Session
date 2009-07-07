@@ -6,6 +6,8 @@ use Catalyst qw/Session Session::Store::Dummy Session::State::Cookie/;
 use strict;
 use warnings;
 
+use Data::Dumper;
+
 __PACKAGE__->config->{session} = {
     # needed for live_verify_user_agent.t; should be harmless for other tests 
     verify_user_agent => 1,  
@@ -22,6 +24,38 @@ sub logout : Global {
     $c->res->output(
         "logged out after " . $c->session->{counter} . " requests" );
     $c->delete_session("logout");
+}
+
+sub set_session_variable : Global {
+    my ( $self, $c, $var, $val ) = @_;
+    $c->session->{$var} = $val;
+    $c->res->output("session variable set");
+}
+
+sub get_session_variable : Global {
+    my ( $self, $c, $var ) = @_;
+    my $val = $c->session->{$var} || 'n.a.';
+    $c->res->output("VAR_$var=$val");
+}
+
+sub get_sessid : Global {
+    my ( $self, $c ) = @_;
+    my $sid = $c->sessionid || 'n.a.';
+    $c->res->output("SID=$sid");
+}
+
+sub dump_session : Global {
+    my ( $self, $c ) = @_;
+    my $sid = $c->sessionid || 'n.a.';
+    my $dump = Dumper($c->session || 'n.a.');
+    $c->res->output("[SID=$sid]\n$dump");
+}
+
+sub change_sessid : Global {
+    my ( $self, $c ) = @_;
+    #$c->change_session_id;
+    $c->create_session_id;
+    $c->res->output("session id changed");
 }
 
 sub page : Global {
