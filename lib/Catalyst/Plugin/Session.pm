@@ -288,6 +288,24 @@ sub _clear_session_instance_data {
     $c->maybe::next::method(@_); # allow other plugins to hook in on this
 }
 
+sub change_session_id {
+    my $c = shift;
+
+    my $sessiondata = $c->session;
+    my $oldsid = $c->sessionid;
+    my $newsid = $c->create_session_id;
+		
+    if ($oldsid) {
+        $c->log->debug(qq/change_sessid: deleting session data from "$oldsid"/) if $c->debug;
+        $c->delete_session_data("${_}:${oldsid}") for qw/session expires flash/;
+    }
+
+    $c->log->debug(qq/change_sessid: storing session data to "$newsid"/) if $c->debug;
+    $c->store_session_data( "session:$newsid" => $sessiondata );
+
+    return $newsid; 
+}
+
 sub delete_session {
     my ( $c, $msg ) = @_;
 
@@ -748,6 +766,31 @@ Will make the session data survive, but the user will still be logged out after
 an hour.
 
 Note that these values are not auto extended.
+
+=item change_session_id
+
+By calling this method you can force a session id change while keeping all
+session data. This method might come handy when you are paranoid about some
+advanced variations of session fixation attack.
+
+If you want to prevent this session fixation scenario:
+
+    0) let us have WebApp with anonymous and authenticated parts
+    1) a hacker goes to vulnerable WebApp and gets a real sessionid, 
+       just by browsing anonymous part of WebApp
+    2) the hacker inserts (somehow) this values into a cookie in victim's browser
+    3) after the victim logs into WebApp the hacker can enter his/her session
+
+you should call change_session_id in your login controller like this:
+
+      if ($c->authenticate( { username => $user, password => $pass } )) {
+        # login OK
+        $c->change_session_id;
+        ...
+      } else {
+        # login FAILED
+        ...
+      }
 
 =back
 

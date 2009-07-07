@@ -18,7 +18,7 @@ BEGIN {
     or plan skip_all =>
         'Test::WWW::Mechanize::Catalyst >= 0.51 is required for this test';
 
-    plan tests => 8;
+    plan tests => 10;
 }
 
 use lib "t/lib";

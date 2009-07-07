@@ -53,8 +53,7 @@ sub dump_session : Global {
 
 sub change_sessid : Global {
     my ( $self, $c ) = @_;
-    #$c->change_session_id;
-    $c->create_session_id;
+    $c->change_session_id;
     $c->res->output("session id changed");
 }
 
