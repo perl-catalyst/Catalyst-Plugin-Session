@@ -13,7 +13,7 @@ use Carp;
 
 use namespace::clean -except => 'meta';
 
-our $VERSION = '0.24';
+our $VERSION = '0.25';
 
 my @session_data_accessors; # used in delete_session
 
@@ -168,7 +168,7 @@ sub _save_flash {
                 delete $flash_data->{$key};
             }
         }
-        
+
         my $sid = $c->sessionid;
 
         my $session_data = $c->_session;
@@ -262,7 +262,7 @@ sub _load_flash {
         if ( my $flash_data = $c->_flash )
         {
             $c->_flash_key_hashes({ map { $_ => Object::Signature::signature( \$flash_data->{$_} ) } keys %$flash_data });
-            
+
             return $flash_data;
         }
     }
@@ -294,7 +294,7 @@ sub change_session_id {
     my $sessiondata = $c->session;
     my $oldsid = $c->sessionid;
     my $newsid = $c->create_session_id;
-		
+
     if ($oldsid) {
         $c->log->debug(qq/change_sessid: deleting session data from "$oldsid"/) if $c->debug;
         $c->delete_session_data("${_}:${oldsid}") for qw/session expires flash/;
@@ -303,7 +303,7 @@ sub change_session_id {
     $c->log->debug(qq/change_sessid: storing session data to "$newsid"/) if $c->debug;
     $c->store_session_data( "session:$newsid" => $sessiondata );
 
-    return $newsid; 
+    return $newsid;
 }
 
 sub delete_session {
@@ -363,7 +363,7 @@ sub calculate_extended_session_expires {
 
 sub reset_session_expires {
     my ( $c, $sid ) = @_;
-    
+
     my $exp = $c->calculate_initial_session_expires;
     $c->_session_expires( $exp );
     $c->_extended_session_expires( $exp );
@@ -372,7 +372,7 @@ sub reset_session_expires {
 
 sub sessionid {
     my $c = shift;
-    
+
     return $c->_sessionid || $c->_load_sessionid;
 }
 
@@ -428,7 +428,7 @@ sub keep_flash {
     (@{$href}{@keys}) = ((undef) x @keys);
 }
 
-sub _flash_data { 
+sub _flash_data {
     my $c = shift;
     $c->_flash || $c->_load_flash || do {
         $c->create_session_id_if_needed;
@@ -454,7 +454,7 @@ sub flash {
 
 sub clear_flash {
     my $c = shift;
-    
+
     #$c->delete_session_data("flash:" . $c->sessionid); # should this be in here? or delayed till finalization?
     $c->_flash_key_hashes({});
     $c->_flash_keep_keys({});
@@ -508,7 +508,7 @@ sub create_session_id_if_needed {
 
 sub create_session_id {
     my $c = shift;
-    
+
     my $sid = $c->generate_session_id;
 
     $c->log->debug(qq/Created session "$sid"/) if $c->debug;
@@ -712,7 +712,7 @@ of every request.
         my ( $self, $c ) = @_;
 
         if ( exists $c->flash->{beans} ) { # false
-        
+
         }
     }
 
@@ -776,7 +776,7 @@ advanced variations of session fixation attack.
 If you want to prevent this session fixation scenario:
 
     0) let us have WebApp with anonymous and authenticated parts
-    1) a hacker goes to vulnerable WebApp and gets a real sessionid, 
+    1) a hacker goes to vulnerable WebApp and gets a real sessionid,
        just by browsing anonymous part of WebApp
     2) the hacker inserts (somehow) this values into a cookie in victim's browser
     3) after the victim logs into WebApp the hacker can enter his/her session
@@ -978,7 +978,7 @@ Defaults to false.
 =item verify_user_agent
 
 When true, C<<$c->request->user_agent>> will be checked at prepare time. If it
-is not the same as the user agent that initiated the session, the session is 
+is not the same as the user agent that initiated the session, the session is
 deleted.
 
 Defaults to false.
@@ -1092,6 +1092,8 @@ Sebastian Riedel
 Tomas Doran (t0m) C<bobtfish@bobtfish.net> (current maintainer)
 
 Sergio Salvi
+
+kmx C<kmx@volny.cz>
 
 And countless other contributers from #catalyst. Thanks guys!
 

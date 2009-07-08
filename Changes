@@ -1,5 +1,11 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+0.25 2009-0708
+        - Add the a change_session_id method which can be called after
+          authentication to change the user's session cookie whilst preserving
+          their session data. This can be used to provide protection from
+          Session Fixation attacks. (kmx)
+
 0.24 2009-06-23
         - Be more paranoid about getting values of $c->req to avoid issues
           with old Test::WWW::Mechanize::Catalyst.
