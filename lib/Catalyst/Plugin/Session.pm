@@ -2,8 +2,7 @@
 
 package Catalyst::Plugin::Session;
 
-use Moose;
-with 'MooseX::Emulate::Class::Accessor::Fast';
+use Moose::Role;
 use MRO::Compat;
 use Catalyst::Exception ();
 use Digest              ();
@@ -15,37 +14,36 @@ use namespace::clean -except => 'meta';
 
 our $VERSION = '0.25';
 
-my @session_data_accessors; # used in delete_session
+# used in delete_session
+my @session_data_accessors = qw/
+				   _sessionid
+				   _session
+				   _session_expires
+				   _extended_session_expires
+				   _session_data_sig
+				   _flash
+				   _flash_keep_keys
+				   _flash_key_hashes
+				   _tried_loading_session_id
+				   _tried_loading_session_data
+				   _tried_loading_session_expires
+				   _tried_loading_flash_data
+			       /;
 
-__PACKAGE__->mk_accessors(
-        "_session_delete_reason",
-        @session_data_accessors = qw/
-          _sessionid
-          _session
-          _session_expires
-          _extended_session_expires
-          _session_data_sig
-          _flash
-          _flash_keep_keys
-          _flash_key_hashes
-          _tried_loading_session_id
-          _tried_loading_session_data
-          _tried_loading_session_expires
-          _tried_loading_flash_data
-          /
-);
+has '_session_delete_reason' => ( is => 'rw');
+foreach (@session_data_accessors) {
+    has $_ => ( is => 'rw');
+}
 
 
-sub setup {
+before 'setup_finalize' => sub {
     my $c = shift;
-
-    $c->maybe::next::method(@_);
 
     $c->check_session_plugin_requirements;
     $c->setup_session;
 
     return $c;
-}
+};
 
 sub check_session_plugin_requirements {
     my $c = shift;
@@ -77,7 +75,7 @@ sub setup_session {
     $c->maybe::next::method();
 }
 
-sub prepare_action {
+before 'prepare_action' => sub {
     my $c = shift;
 
     if (    $c->config->{session}{flash_to_stash}
@@ -87,19 +85,17 @@ sub prepare_action {
         @{ $c->stash }{ keys %$flash_data } = values %$flash_data;
     }
 
-    $c->maybe::next::method(@_);
-}
+};
 
-sub finalize_headers {
+before 'finalize_headers' => sub {
     my $c = shift;
 
     # fix cookie before we send headers
     $c->_save_session_expires;
 
-    return $c->maybe::next::method(@_);
-}
+};
 
-sub finalize_body {
+before 'finalize_body' => sub {
     my $c = shift;
 
     # We have to finalize our session *before* $c->engine->finalize_xxx is called,
@@ -107,8 +103,7 @@ sub finalize_body {
     # the session database (or whatever Session::Store you use).
     $c->finalize_session;
 
-    return $c->maybe::next::method(@_);
-}
+};
 
 sub finalize_session {
     my $c = shift;
