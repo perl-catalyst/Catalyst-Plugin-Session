@@ -30,7 +30,6 @@ requires 'Test::More';
 
 test_requires 'Test::Deep';
 test_requires 'Test::Exception';
-test_requires 'Test::MockObject' => '1.01';
 
 resources repository => 'http://dev.catalyst.perl.org/repos/Catalyst/Catalyst-Plugin-Session/0.00/trunk/';
 

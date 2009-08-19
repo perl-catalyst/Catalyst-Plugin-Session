@@ -1,6 +1,9 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
-0.25 2009-0708
+0.26 2009-08-19
+        - Remove Test::MockObject from the test suite as it is full of fail.
+
+0.25 2009-07-08
         - Add the a change_session_id method which can be called after
           authentication to change the user's session cookie whilst preserving
           their session data. This can be used to provide protection from
