@@ -1,7 +1,9 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
 0.26 2009-08-19
-        - Remove Test::MockObject from the test suite as it is full of fail.
+        - Remove Test::MockObject from the test suite as prone to failing on
+          some platforms and perl versions due to it's UNIVERSAL:: package
+          dependencies.
 
 0.25 2009-07-08
         - Add the a change_session_id method which can be called after
