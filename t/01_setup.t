@@ -64,7 +64,7 @@ ok( !$@, "setup() lives with state/store plugins in use" );
 is( $calls, 0, "no fatal error logged either" );
 
 cmp_deeply(
-    [ keys %{ $config{session} } ],
+    [ keys %{ $config{'Plugin::Session'} } ],
     bag(qw/expires verify_address verify_user_agent/),
     "default values for config were populated in successful setup",
 );

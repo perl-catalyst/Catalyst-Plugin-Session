@@ -1,5 +1,11 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+        - Move actions out of the root application class in tests as this
+          is deprecated.
+        - Change configuration key to 'Plugin::Session' by default. The
+          old 'session' key is still supported, but will issue a warning
+          in a future release.
+
 0.26 2009-08-19
         - Remove Test::MockObject from the test suite as prone to failing on
           some platforms and perl versions due to it's UNIVERSAL:: package

@@ -35,6 +35,14 @@ __PACKAGE__->mk_accessors(
           /
 );
 
+sub _session_plugin_config {
+    my $c = shift;
+    # FIXME - Start warning once all the state/store modules have also been updated.
+    #$c->log->warn("Deprecated 'session' config key used, please use the key 'Plugin::Session' instead")
+    #    if exists $c->config->{session}
+    #$c->config->{'Plugin::Session'} ||= delete($c->config->{session}) || {};
+    $c->config->{'Plugin::Session'} ||= $c->config->{session} || {};
+}
 
 sub setup {
     my $c = shift;
@@ -65,7 +73,7 @@ sub check_session_plugin_requirements {
 sub setup_session {
     my $c = shift;
 
-    my $cfg = ( $c->config->{session} ||= {} );
+    my $cfg = $c->_session_plugin_config;
 
     %$cfg = (
         expires        => 7200,
@@ -82,7 +90,7 @@ sub prepare_action {
 
     $c->maybe::next::method(@_);
 
-    if (    $c->config->{session}{flash_to_stash}
+    if (    $c->_session_plugin_config->{flash_to_stash}
         and $c->sessionid
         and my $flash_data = $c->flash )
     {
@@ -215,7 +223,7 @@ sub _load_session {
             $c->_session($session_data);
 
             no warnings 'uninitialized';    # ne __address
-            if (   $c->config->{session}{verify_address}
+            if (   $c->_session_plugin_config->{verify_address}
                 && $session_data->{__address} ne $c->request->address )
             {
                 $c->log->warn(
@@ -226,7 +234,7 @@ sub _load_session {
                 $c->delete_session("address mismatch");
                 return;
             }
-            if (   $c->config->{session}{verify_user_agent}
+            if (   $c->_session_plugin_config->{verify_user_agent}
                 && $session_data->{__user_agent} ne $c->request->user_agent )
             {
                 $c->log->warn(
@@ -353,7 +361,7 @@ sub extend_session_expires {
 
 sub calculate_initial_session_expires {
     my $c = shift;
-    return ( time() + $c->config->{session}{expires} );
+    return ( time() + $c->_session_plugin_config->{expires} );
 }
 
 sub calculate_extended_session_expires {
@@ -480,12 +488,12 @@ sub initialize_session_data {
             __updated => $now,
 
             (
-                $c->config->{session}{verify_address}
+                $c->_session_plugin_config->{verify_address}
                 ? ( __address => $c->request->address||'' )
                 : ()
             ),
             (
-                $c->config->{session}{verify_user_agent}
+                $c->_session_plugin_config->{verify_user_agent}
                 ? ( __user_agent => $c->request->user_agent||'' )
                 : ()
             ),
@@ -756,7 +764,7 @@ expiry time for the whole session).
 
 For example:
 
-    __PACKAGE__->config->{session}{expires} = 1000000000000; # forever
+    __PACKAGE__->config('Plugin::Session' => { expires => 1000000000000 }); # forever
 
     # later
 
@@ -810,7 +818,7 @@ application.
 
 =item setup_session
 
-This method populates C<< $c->config->{session} >> with the default values
+This method populates C<< $c->config('Plugin::Session') >> with the default values
 listed in L</CONFIGURATION>.
 
 =item prepare_action
@@ -954,12 +962,12 @@ the store.
 
 =head1 CONFIGURATION
 
-    $c->config->{session} = {
+    $c->config('Plugin::Session' => {
         expires => 1234,
-    };
+    });
 
 All configuation parameters are provided in a hash reference under the
-C<session> key in the configuration hash.
+C<Plugin::Session> key in the configuration hash.
 
 =over 4
 
