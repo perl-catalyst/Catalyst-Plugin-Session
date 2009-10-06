@@ -109,7 +109,7 @@ For the plugins above we don't need any configuration at all - they should work
 out of the box, but suppose we did want to change some things around, it'll
 look like this:
 
-    MyApp->config( session => {
+    MyApp->config( 'Plugin::Session' => {
         cookie_name => "my_fabulous_cookie",
         storage     => "/path/to/store_data_file",
     });

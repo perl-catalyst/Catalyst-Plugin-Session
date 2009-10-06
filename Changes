@@ -1,5 +1,6 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+0.26_01 2009-10-06
         - Move actions out of the root application class in tests as this
           is deprecated.
         - Change configuration key to 'Plugin::Session' by default. The

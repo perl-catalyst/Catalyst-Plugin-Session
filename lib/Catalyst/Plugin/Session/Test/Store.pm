@@ -90,7 +90,7 @@ sub import {
             ok( !$c->session_delete_reason, "no reason for deletion" );
         }
 
-        @{ __PACKAGE__->config->{session} }{ keys %$cfg } = values %$cfg;
+        @{ __PACKAGE__->config->{'Plugin::Session'} }{ keys %$cfg } = values %$cfg;
 
         { __PACKAGE__->setup; }; # INSANE HACK 
     }
@@ -126,9 +126,9 @@ sub import {
             ok( !$c->session->{magic}, "no saved data" );
         }
 
-        __PACKAGE__->config->{session}{expires} = 0;
+        __PACKAGE__->config->{'Plugin::Session'}{expires} = 0;
 
-        @{ __PACKAGE__->config->{session} }{ keys %$cfg } = values %$cfg;
+        @{ __PACKAGE__->config->{'Plugin::Session'} }{ keys %$cfg } = values %$cfg;
 
         { __PACKAGE__->setup; }; # INSANE HACK
     }

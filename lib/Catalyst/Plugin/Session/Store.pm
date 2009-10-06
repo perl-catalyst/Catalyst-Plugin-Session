@@ -102,7 +102,7 @@ are not checked, and are assumed to be OK. Missing values are not errors.
 =head2 Auto-Expiry on the Backend
 
 Storage plugins are encouraged to use C<< $c->session_expires >>, C<<
-$c->config->{session}{expires} >>, or the storage of the
+$c->config('Plugin::Session' => { expires => $val }) >>, or the storage of the
 C<expires:$sessionid> key to perform more efficient expiration, but only
 for the key prefixes C<session>, C<flash> and C<expires>.
 
