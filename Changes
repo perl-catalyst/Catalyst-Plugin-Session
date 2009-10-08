@@ -1,5 +1,8 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+0.27 2009-10-08
+        - Release 0.26_01 as stable without further changes.
+
 0.26_01 2009-10-06
         - Move actions out of the root application class in tests as this
           is deprecated.
@@ -26,13 +29,13 @@ Revision history for Perl extension Catalyst::Plugin::Session
 
 0.23 2009-06-16
         - Add the verify_user_agent config parameter (kmx)
-        - Add a test case to prove that logging in with a session cookie still 
+        - Add a test case to prove that logging in with a session cookie still
           causes a new cookie to be issued for you, proving that the code is
           not vulnerable to a session fixation attack. (t0m)
 
 0.22 2009-05-13
         - INSANE HACK to ensure B::Hooks::EndOfScope inlines us a new method right now
-          in Catalyst::Plugin::Session::Test::Store for Catalyst 5.80004 compatibility. 
+          in Catalyst::Plugin::Session::Test::Store for Catalyst 5.80004 compatibility.
 
           This change does not in any way affect normal users - it is just due to the
           fairly crazy way that Catalyst::Plugin::Session::Test::Store works, and that
