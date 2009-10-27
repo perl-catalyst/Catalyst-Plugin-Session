@@ -67,4 +67,25 @@ sub user_agent : Global {
     $c->res->output('UA=' . $c->req->user_agent);
 }
 
+sub accessor_test : Global {
+    my ( $self, $c ) = @_;
+
+    $c->session(
+        one => 1,
+        two => 2,
+    );
+
+    $c->session( {
+            three => 3,
+            four => 4,
+        },
+    );
+
+    $c->session->{five} = 5;
+
+    for my $key (keys %{ $c->session }) {
+        $c->res->write("$key: " . $c->session->{$key} . "\n");
+    }
+}
+
 1;
