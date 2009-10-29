@@ -25,16 +25,19 @@ use lib "t/lib";
 use Test::WWW::Mechanize::Catalyst "SessionTestApp";
 
 #try completely random cookie unknown for our application; should be rejected
-my $injected_cookie = "sessiontestapp_session=89c3a019866af6f5a305e10189fbb23df3f4772c";
+my $cookie_name = 'sessiontestapp_session';
+my $cookie_value = '89c3a019866af6f5a305e10189fbb23df3f4772c';
+my ( @injected_cookie ) = ( 1, $cookie_name , $cookie_value ,'/', undef, 0, undef, undef, undef, {} );
+my $injected_cookie_str = "${cookie_name}=${cookie_value}";
 
 my $ua1 = Test::WWW::Mechanize::Catalyst->new;
-$ua1->add_header('Cookie' => $injected_cookie);
+$ua1->cookie_jar->set_cookie( @injected_cookie );
 
 my $res = $ua1->get( "http://localhost/login" );
 my $cookie1 = $res->header('Set-Cookie');
 
 ok $cookie1, "Set-Cookie 1";
-isnt $cookie1, qr/$injected_cookie/, "Logging in generates us a new cookie";
+isnt $cookie1, qr/$injected_cookie_str/, "Logging in generates us a new cookie";
 
 $ua1->get( "http://localhost/get_sessid" );
 my $sid1 = $ua1->content;
@@ -78,7 +81,7 @@ $ua1->get( "http://localhost/dump_session" );
 
 #try to use old cookie value (before session_id_change)
 my $ua2 = Test::WWW::Mechanize::Catalyst->new;
-$ua2->add_header('Cookie' => $cookie1);
+$ua2->cookie_jar->set_cookie( @injected_cookie );
 
 #if we take old cookie we should not be able to get any old session data
 $ua2->get( "http://localhost/get_session_variable/var1");

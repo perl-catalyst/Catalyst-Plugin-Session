@@ -1,5 +1,9 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+0.28 2009-10-29
+        - Fix session fixation test with LWP 5.833 by calling $cookie_jar->set_cookie
+          rather than manually stuffing the cookie in the request.
+
 0.27 2009-10-08
         - Release 0.26_01 as stable without further changes.
 
