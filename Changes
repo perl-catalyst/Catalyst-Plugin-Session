@@ -1,5 +1,7 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+        - Fix session being deleted when you have a new session after session
+          expiry when calling session_is_valid method. Tests for this.
         - Allow ->session to be used as a setter method so that you can say
           ->session( key => $value );
 
