@@ -36,3 +36,5 @@
 
 # Shipit conf
 .shipit
+
+^Catalyst-Plugin-Session-.*
