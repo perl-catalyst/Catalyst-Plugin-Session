@@ -19,8 +19,8 @@ BEGIN {
 
     plan tests => 4;
 }
-
-use lib "t/lib";
+use FindBin qw/$Bin/;
+use lib "$Bin/lib";
 use Test::WWW::Mechanize::Catalyst "SessionValid";
 
 my $ua = Test::WWW::Mechanize::Catalyst->new;
