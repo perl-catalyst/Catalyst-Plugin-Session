@@ -375,6 +375,11 @@ sub reset_session_expires {
 
     my $exp = $c->calculate_initial_session_expires;
     $c->_session_expires( $exp );
+    #
+    # since we're setting _session_expires directly, make load_session_expires
+    # actually use that value.
+    #
+    $c->_tried_loading_session_expires(1);
     $c->_extended_session_expires( $exp );
     $exp;
 }
