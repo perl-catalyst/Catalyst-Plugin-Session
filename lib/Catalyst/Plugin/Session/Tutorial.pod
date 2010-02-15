@@ -72,7 +72,7 @@ State plugins handle session ID persistence. For example
 L<Catalyst::Plugin::Session::State::Cookie> creates a cookie with the session
 ID in it.
 
-These plugins will automatically set C<< $c->sessionid >> at the begining of
+These plugins will automatically set C<< $c->sessionid >> at the beginning of
 the request, and automatically cause C<< $c->sessionid >> to be saved by the
 client at the end of the request.
 

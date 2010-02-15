@@ -62,7 +62,7 @@ by special-casing C<get_session_data> and C<store_session_data> for that
 key format, in order to ease the implementation of
 C<delete_expired_sessions>.
 
-The only assurance stores are requred to make is that given
+The only assurance stores are required to make is that given
 
     $c->store_session_data( $x, $y );
 
