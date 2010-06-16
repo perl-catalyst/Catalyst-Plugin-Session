@@ -1105,11 +1105,8 @@ changes by request a
 
 =back
 
-If this is a concern in your application, a soon-to-be-developed locking
-solution is the only safe way to go. This will have a bigger overhead.
-
-For applications where any given user is only making one request at a time this
-plugin should be safe enough.
+For applications where any given user's session is only making one request
+at a time this plugin should be safe enough.
 
 =head1 AUTHORS
 
