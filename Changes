@@ -1,6 +1,6 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
-0.30 TO BE RELEASED
+0.30 2010-06-24
         - Fix Makefile.PL's is_upgrading_needed() routine (RT #58771)
 
 0.29 2009-11-04
