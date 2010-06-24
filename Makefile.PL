@@ -42,13 +42,15 @@ sub is_upgrading_needed {
     );
 
     foreach my $module (keys %state) {
-        if ( eval "require Catalyst::Plugin::Session::State::$module" and
-        ${"Catalyst::Plugin::Session::State::${module}::VERSION"} < $state{$module} ) {
-            warn <<WARN;
+        my $package = 'Catalyst::Plugin::Session::State::' . $module;
 
+        next if not eval "require $package;";
+
+        if( not eval { $package->VERSION( $state{ $module } ); } ) {
+            warn <<WARN;
 ********** NOTE **********
 
-Catalyst::Plugin::Session::State::$module must also be updated!
+$package must also be updated!
 
 The currently installed version is *not* compatible with this version of
 Catalyst::Plugin::Session!
