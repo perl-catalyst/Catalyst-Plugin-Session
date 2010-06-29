@@ -788,7 +788,8 @@ expiry time for the whole session).
 
 For example:
 
-    __PACKAGE__->config('Plugin::Session' => { expires => 1000000000000 }); # forever
+    __PACKAGE__->config('Plugin::Session' => { expires => 10000000000 }); # "forever" 
+    (NB If this number is too large, Y2K38 breakage could result.)
 
     # later
 
