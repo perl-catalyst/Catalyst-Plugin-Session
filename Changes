@@ -1,5 +1,8 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+        - Fix session being loaded by call to dump_these in debug mode
+          (RT#58856)
+
 0.30 2010-06-24
         - Fix Makefile.PL's is_upgrading_needed() routine (RT #58771)
 

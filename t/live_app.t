@@ -16,8 +16,6 @@ BEGIN {
     }
     or plan skip_all =>
         'Test::WWW::Mechanize::Catalyst >= 0.51 is required for this test';
-
-    plan tests => 36;
 }
 
 use lib "t/lib";
@@ -83,6 +81,12 @@ $_->get_ok( "http://localhost/page", "get main page" ) for $ua1, $ua2;
 $ua1->content_contains( "please login", "ua1 not logged in" );
 $ua2->content_contains( "please login", "ua2 not logged in" );
 
+my $ua3 = Test::WWW::Mechanize::Catalyst->new;
+$ua3->get_ok( "http://localhost/login", "log ua3 in" );
+$ua3->get_ok( "http://localhost/dump_these_loads_session");
+$ua3->content_contains('NOT');
+
 diag("Testing against Catalyst $Catalyst::VERSION");
 diag("Testing Catalyst::Plugin::Session $Catalyst::Plugin::Session::VERSION");
 
+done_testing;

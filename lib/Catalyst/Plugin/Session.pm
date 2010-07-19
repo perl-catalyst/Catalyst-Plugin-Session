@@ -578,7 +578,7 @@ sub dump_these {
     (
         $c->maybe::next::method(),
 
-        $c->sessionid
+        $c->_sessionid
         ? ( [ "Session ID" => $c->sessionid ], [ Session => $c->session ], )
         : ()
     );

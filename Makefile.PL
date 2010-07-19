@@ -26,7 +26,7 @@ requires 'Moose' => '0.76';
 requires 'Tie::RefHash' => '1.34';
 
 # for Test::Store
-requires 'Test::More';
+requires 'Test::More' => '0.88';
 
 test_requires 'Test::Deep';
 test_requires 'Test::Exception';

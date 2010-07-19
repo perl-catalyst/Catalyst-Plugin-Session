@@ -88,4 +88,16 @@ sub accessor_test : Global {
     }
 }
 
+sub dump_these_loads_session : Global {
+    my ($self, $c) = @_;
+
+    $c->dump_these();
+    if ($c->_session) {
+        $c->res->write('LOADED')
+    }
+    else {
+        $c->res->write('NOT');
+    }
+}
+
 1;
