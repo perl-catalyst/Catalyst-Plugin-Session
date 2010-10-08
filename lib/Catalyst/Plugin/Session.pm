@@ -13,7 +13,7 @@ use Carp;
 
 use namespace::clean -except => 'meta';
 
-our $VERSION = '0.30';
+our $VERSION = '0.31';
 $VERSION = eval $VERSION;
 
 my @session_data_accessors; # used in delete_session
@@ -499,8 +499,7 @@ sub initialize_session_data {
 
     my $now = time;
 
-    return $c->_session(
-        {
+    my $session_data = {
             __created => $now,
             __updated => $now,
 
@@ -514,8 +513,12 @@ sub initialize_session_data {
                 ? ( __user_agent => $c->request->user_agent||'' )
                 : ()
             ),
-        }
-    );
+    };
+
+    # Only save this session if data is added by the application
+    $c->_session_data_sig( Object::Signature::signature($session_data) );
+
+    return $c->_session($session_data);
 }
 
 sub generate_session_id {
