@@ -1,5 +1,6 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+0.31 2010-10-08
         - Fix session being loaded by call to dump_these in debug mode
           (RT#58856)
 
