@@ -225,6 +225,7 @@ sub _load_session {
 
             no warnings 'uninitialized';    # ne __address
             if (   $c->_session_plugin_config->{verify_address}
+                && exists $session_data->{__address}
                 && $session_data->{__address} ne $c->request->address )
             {
                 $c->log->warn(

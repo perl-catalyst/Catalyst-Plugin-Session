@@ -13,6 +13,14 @@ sub login : Global {
     $c->res->output("logged in");
 }
 
+sub login_without_address : Global {
+    my ( $self, $c ) = @_;
+    $c->session;
+    $c->log->debug($c->request->address);
+    delete $c->session->{__address};
+    $c->res->output("logged in (without address)");
+}
+
 sub logout : Global {
     my ( $self, $c ) = @_;
     $c->res->output(
