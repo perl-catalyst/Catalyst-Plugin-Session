@@ -102,8 +102,10 @@ sub prepare_action {
 sub finalize_headers {
     my $c = shift;
 
-    # fix cookie before we send headers
-    $c->_save_session_expires;
+    # Force extension of session_expires before finalizing headers, so a possible cookie will be
+    # up to date. First call to session_expires will extend the expiry, subsequent calls will
+    # just return the previously extended value.
+    $c->session_expires;
 
     return $c->maybe::next::method(@_);
 }
@@ -124,6 +126,7 @@ sub finalize_session {
 
     $c->maybe::next::method(@_);
 
+    $c->_save_session_expires;
     $c->_save_session_id;
     $c->_save_session;
     $c->_save_flash;
