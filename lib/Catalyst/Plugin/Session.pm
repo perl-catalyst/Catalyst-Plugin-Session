@@ -348,7 +348,7 @@ sub session_expires {
     if ( defined( my $expires = $c->_extended_session_expires ) ) {
         return $expires;
     } elsif ( defined( $expires = $c->_load_session_expires ) ) {
-        return $c->extend_session_expires( $expires );
+        return $c->calculate_initial_session_expires;
     } else {
         return 0;
     }
@@ -368,7 +368,7 @@ sub calculate_initial_session_expires {
 
 sub calculate_extended_session_expires {
     my ( $c, $prev ) = @_;
-    $c->calculate_initial_session_expires;
+    return ( time() + $prev );
 }
 
 sub reset_session_expires {

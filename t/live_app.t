@@ -86,6 +86,19 @@ $ua3->get_ok( "http://localhost/login", "log ua3 in" );
 $ua3->get_ok( "http://localhost/dump_these_loads_session");
 $ua3->content_contains('NOT');
 
+my $ua4 = Test::WWW::Mechanize::Catalyst->new;
+$ua4->get_ok( "http://localhost/page", "initial get" );
+$ua4->content_contains( "please login", "ua4 not logged in" );
+
+$ua4->get_ok( "http://localhost/login", "log ua4 in" );
+$ua4->content_contains( "logged in", "ua4 logged in" );
+
+$ua4->get_ok( "http://localhost/extend_session_expires", "ua4 extend expire session" );
+
+my ( $ua4_expires ) = ($ua4->content =~ /(\d+)$/);
+
+ok( ($ua4_expires-time()-86400) >= 0, 'extend_session_expires with really long value' );
+
 diag("Testing against Catalyst $Catalyst::VERSION");
 diag("Testing Catalyst::Plugin::Session $Catalyst::Plugin::Session::VERSION");
 

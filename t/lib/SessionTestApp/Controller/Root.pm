@@ -108,4 +108,10 @@ sub dump_these_loads_session : Global {
     }
 }
 
+sub extend_session_expires : Global {
+    my ($self, $c) = @_;
+    $c->extend_session_expires(31536000);
+    $c->res->output($c->session_expires);
+}
+
 1;
