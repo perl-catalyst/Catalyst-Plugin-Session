@@ -1,5 +1,9 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+0.33 2012-03-08
+        - Note that flash is deprecated / not recommended due to it's
+          inherent races. Point out Catalyst::Plugin::StatusMessage instead
+
 0.32 2011-06-08
         - Fix handling with enables verify_address and add related test
 
