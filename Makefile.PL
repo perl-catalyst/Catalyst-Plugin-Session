@@ -30,8 +30,9 @@ requires 'Test::More' => '0.88';
 
 test_requires 'Test::Deep';
 test_requires 'Test::Exception';
-
-resources repository => 'http://dev.catalyst.perl.org/repos/Catalyst/Catalyst-Plugin-Session/0.00/trunk/';
+test_requires 'Test::WWW::Mechanize::PSGI';
+test_requires 'Plack::Middleware::ForceEnv';
+resources repository => 'git://git.shadowcat.co.uk/catagits/Catalyst-Plugin-Session.git';
 
 WriteAll;
 

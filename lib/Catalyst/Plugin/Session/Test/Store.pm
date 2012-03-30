@@ -92,7 +92,8 @@ sub import {
 
         @{ __PACKAGE__->config->{'Plugin::Session'} }{ keys %$cfg } = values %$cfg;
 
-        { __PACKAGE__->setup; }; # INSANE HACK 
+        { __PACKAGE__->setup; }; # Extra block here is an INSANE HACK to get inlined constructor
+                                 # (i.e. to make B::Hooks::EndOfScope fire)
     }
 
     {
@@ -130,7 +131,7 @@ sub import {
 
         @{ __PACKAGE__->config->{'Plugin::Session'} }{ keys %$cfg } = values %$cfg;
 
-        { __PACKAGE__->setup; }; # INSANE HACK
+        { __PACKAGE__->setup; }; # INSANE HACK (the block - as above)
     }
 
     use Test::More;
