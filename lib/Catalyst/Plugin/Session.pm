@@ -1144,6 +1144,10 @@ Kent Fredric (kentnl)
 
 And countless other contributers from #catalyst. Thanks guys!
 
+=head1 Contributors
+
+Devin Austin (dhoss) <dhoss@cpan.org>
+
 =head1 COPYRIGHT & LICENSE
 
     Copyright (c) 2005 the aforementioned authors. All rights
