@@ -2,6 +2,7 @@ Revision history for Perl extension Catalyst::Plugin::Session
 
 0.34 2012-03-30
         - Fixed up t/live_verify_address.t per https://rt.cpan.org/Ticket/Display.html?id=71142
+        - Merged in dpetrov's 0.32 changes (extend_session_expire)
 
 0.33 2012-03-08
         - Note that flash is deprecated / not recommended due to it's
