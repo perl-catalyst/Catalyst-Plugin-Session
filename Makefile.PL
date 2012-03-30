@@ -32,7 +32,7 @@ test_requires 'Test::Deep';
 test_requires 'Test::Exception';
 test_requires 'Test::WWW::Mechanize::PSGI';
 test_requires 'Plack::Middleware::ForceEnv';
-resources repository => 'http://dev.catalyst.perl.org/repos/Catalyst/Catalyst-Plugin-Session/0.00/trunk/';
+resources repository => 'git://git.shadowcat.co.uk/catagits/Catalyst-Plugin-Session.git';
 
 WriteAll;
 
