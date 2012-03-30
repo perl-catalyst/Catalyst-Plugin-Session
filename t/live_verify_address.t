@@ -37,18 +37,18 @@ $ua->get_ok( "http://localhost/set_session_variable/logged/in" );
 $ua->content_contains('session variable set');
 
 
-# Change Client 
+# Change Client
 #local $ENV{REMOTE_ADDR} = "192.168.1.2";
 use Plack::Builder;
 my $app = SessionTestApp->psgi_app(@_);
-builder { 
+builder {
   enable 'ForceEnv' => REMOTE_ADDR => "192.168.1.2";
   $app;
 };
 my $ua2 = Test::WWW::Mechanize::PSGI->new(
     app => $app,
     cookie_jar => {}
-);   
+);
 $ua2->get_ok( "http://localhost/get_session_variable/logged");
 $ua2->content_contains('VAR_logged=n.a.');
 
@@ -61,7 +61,7 @@ $ua->content_contains('logged in (without address)');
 $ua->get_ok( "http://localhost/set_session_variable/logged/in" );
 $ua->content_contains('session variable set');
 
-# Change Client 
+# Change Client
 local $ENV{REMOTE_ADDR} = "192.168.1.2";
 
 $ua->get_ok( "http://localhost/get_session_variable/logged" );
