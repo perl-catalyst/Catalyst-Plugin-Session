@@ -351,7 +351,7 @@ sub session_expires {
     if ( defined( my $expires = $c->_extended_session_expires ) ) {
         return $expires;
     } elsif ( defined( $expires = $c->_load_session_expires ) ) {
-        return $c->calculate_initial_session_expires;
+        return $c->extend_session_expires( $expires );
     } else {
         return 0;
     }
@@ -707,15 +707,9 @@ hashref.
 
 =item session_expires
 
-=item session_expires $reset
-
 This method returns the time when the current session will expire, or 0 if
 there is no current session. If there is a session and it already expired, it
 will delete the session and return 0 as well.
-
-If the C<$reset> parameter is true, and there is a session ID the expiry time
-will be reset to the current time plus the time to live (see
-L</CONFIGURATION>). This is used when creating a new session.
 
 =item flash
 

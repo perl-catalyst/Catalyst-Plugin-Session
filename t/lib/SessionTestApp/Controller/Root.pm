@@ -28,6 +28,12 @@ sub logout : Global {
     $c->delete_session("logout");
 }
 
+sub logout_persist : Global {
+    my ( $self, $c ) = @_;
+    # session is not deleted
+    $c->res->redirect( $c->uri_for('/') );
+}
+
 sub set_session_variable : Global {
     my ( $self, $c, $var, $val ) = @_;
     $c->session->{$var} = $val;
