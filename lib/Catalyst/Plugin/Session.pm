@@ -858,6 +858,8 @@ You can change the session expiration time for this session;
 
     $c->change_session_expires( 4000 );
 
+Note that this only works to set the session longer than the config setting.
+
 =back
 
 =head1 INTERNAL METHODS
