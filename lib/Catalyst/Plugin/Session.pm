@@ -359,14 +359,34 @@ sub session_expires {
 
 sub extend_session_expires {
     my ( $c, $expires ) = @_;
-    $c->_extended_session_expires( my $updated = $c->calculate_extended_session_expires( $expires ) );
+    $c->_extended_session_expires( my $updated = $c->calculate_initial_session_expires( $expires ) );
     $c->extend_session_id( $c->sessionid, $updated );
     return $updated;
 }
 
-sub calculate_initial_session_expires {
+sub change_session_expires {
+    my ( $c, $expires ) = @_;
+
+    $expires ||= 0;
+    my $sid = $c->sessionid;
+    my $time_exp = time() + $expires;
+    $c->store_session_data( "expires:$sid" => $time_exp );
+}
+
+sub initial_session_expires {
     my $c = shift;
     return ( time() + $c->_session_plugin_config->{expires} );
+}
+
+sub calculate_initial_session_expires {
+    my $c = shift;
+
+    my $initial_expires = $c->initial_session_expires;
+    my $stored_session_expires = 0;
+    if ( my $sid = $c->sessionid ) {
+        $stored_session_expires = $c->get_session_data("expires:$sid") || 0;
+    }
+    return ( $initial_expires > $stored_session_expires ) ? $initial_expires : $stored_session_expires;
 }
 
 sub calculate_extended_session_expires {
@@ -832,6 +852,12 @@ you should call change_session_id in your login controller like this:
         ...
       }
 
+=item change_session_expires $expires
+
+You can change the session expiration time for this session;
+
+    $c->change_session_expires( 4000 );
+
 =back
 
 =head1 INTERNAL METHODS
@@ -959,6 +985,9 @@ dumped objects if session ID is defined.
 =item delete_session_id
 
 =item extend_session_expires
+
+Note: this is *not* used to give an individual user a longer session. See
+'change_session_expires'.
 
 =item extend_session_id
 

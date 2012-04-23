@@ -28,10 +28,10 @@ sub logout : Global {
     $c->delete_session("logout");
 }
 
-sub logout_persist : Global {
+sub do_redirect : Global {
     my ( $self, $c ) = @_;
     # session is not deleted
-    $c->res->redirect( $c->uri_for('/') );
+    $c->res->redirect( $c->uri_for('page') );
 }
 
 sub set_session_variable : Global {
@@ -114,9 +114,9 @@ sub dump_these_loads_session : Global {
     }
 }
 
-sub extend_session_expires : Global {
+sub change_session_expires : Global {
     my ($self, $c) = @_;
-    $c->extend_session_expires(31536000);
+    $c->change_session_expires(31536000);
     $c->res->output($c->session_expires);
 }
 

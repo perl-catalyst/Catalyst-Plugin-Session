@@ -18,9 +18,9 @@ my $cookie = $res->header('Set-Cookie');
 ok($cookie, 'Have a cookie');
 
 # this checks that cookie persists across a redirect
-($res, $c) = ctx_request(GET 'http://localhost/logout_persist', Cookie => $cookie);
-is($res->code, 302, '/logout with cookie redirects');
-is($res->header('Location'), 'http://localhost/', 'Redirect to / after logout');
-ok($res->header('Set-Cookie'), 'Cookie is reset by /logout');
+($res, $c) = ctx_request(GET 'http://localhost/do_redirect', Cookie => $cookie);
+is($res->code, 302, 'redirected');
+is($res->header('Location'), 'http://localhost/page', 'Redirected after do_redirect');
+ok($res->header('Set-Cookie'), 'Cookie is still there after redirect');
 
 done_testing;

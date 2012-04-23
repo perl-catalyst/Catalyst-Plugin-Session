@@ -93,19 +93,17 @@ $ua4->content_contains( "please login", "ua4 not logged in" );
 $ua4->get_ok( "http://localhost/login", "log ua4 in" );
 $ua4->content_contains( "logged in", "ua4 logged in" );
 
-$ua4->get_ok( "http://localhost/extend_session_expires", "ua4 extend expire session" );
-
-my ( $ua4_expires ) = ($ua4->content =~ /(\d+)$/);
-
-ok( ($ua4_expires - time() - 86400) >= 0, 'extend_session_expires with really long value' );
-
-sleep 1;
 
 $ua4->get( "http://localhost/page", "get page" );
-my ( $ua4_expires_updated ) = ($ua4->content =~ /(\d+)$/);
-diag( "ua4_expires => $ua4_expires");
-diag( "ua4_expires_updated => $ua4_expires_updated");
-ok( $ua4_expires < $ua4_expires_updated, 'update extended session' );
+my ( $ua4_expires1 ) = ($ua4->content =~ /(\d+)$/);
+$ua4->get( "http://localhost/page", "get page" );
+my ( $ua4_expires2 ) = ($ua4->content =~ /(\d+)$/);
+is( $ua4_expires1, $ua4_expires2, 'expires has not changed' );
+
+$ua4->get( "http://localhost/change_session_expires", "get page" );
+$ua4->get( "http://localhost/page", "get page" );
+my ( $ua4_expires3 ) = ($ua4->content =~ /(\d+)$/);
+ok( $ua4_expires3 > ( $ua4_expires1 + 30000000), 'expires has been extended' );
 
 diag("Testing against Catalyst $Catalyst::VERSION");
 diag("Testing Catalyst::Plugin::Session $Catalyst::Plugin::Session::VERSION");
