@@ -97,7 +97,15 @@ $ua4->get_ok( "http://localhost/extend_session_expires", "ua4 extend expire sess
 
 my ( $ua4_expires ) = ($ua4->content =~ /(\d+)$/);
 
-ok( ($ua4_expires-time()-86400) >= 0, 'extend_session_expires with really long value' );
+ok( ($ua4_expires - time() - 86400) >= 0, 'extend_session_expires with really long value' );
+
+sleep 1;
+
+$ua4->get( "http://localhost/page", "get page" );
+my ( $ua4_expires_updated ) = ($ua4->content =~ /(\d+)$/);
+diag( "ua4_expires => $ua4_expires");
+diag( "ua4_expires_updated => $ua4_expires_updated");
+ok( $ua4_expires < $ua4_expires_updated, 'update extended session' );
 
 diag("Testing against Catalyst $Catalyst::VERSION");
 diag("Testing Catalyst::Plugin::Session $Catalyst::Plugin::Session::VERSION");
