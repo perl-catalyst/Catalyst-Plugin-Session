@@ -1001,6 +1001,8 @@ Note: this is *not* used to give an individual user a longer session. See
 
 =item set_session_id
 
+=item initial_session_expires
+
 =back
 
 =head1 USING SESSIONS DURING PREPARE
