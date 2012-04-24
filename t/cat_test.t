@@ -9,6 +9,11 @@ use HTTP::Request::Common;
 use FindBin qw($Bin);
 use lib "$Bin/lib";
 
+BEGIN {
+    plan skip_all => "Need Catalyst::Plugin::Session::State::Cookie"
+        unless do { local $@; eval { require Catalyst::Plugin::Session::State::Cookie; } };
+}
+
 use Catalyst::Test 'SessionTestApp';
 my ($res, $c);
 
