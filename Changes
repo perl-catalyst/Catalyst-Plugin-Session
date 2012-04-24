@@ -1,6 +1,9 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
-        - Fixed bug from last version where session does not persist across a redirect
+        - Implement a 'change_session_expires' method (gshank)
+
+        - Fixed bug from last version where session does not persist
+          across a redirect
 
 0.34 2012-03-30
         - Fixed up t/live_verify_address.t per https://rt.cpan.org/Ticket/Display.html?id=71142
