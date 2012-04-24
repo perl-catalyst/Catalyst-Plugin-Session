@@ -1,5 +1,6 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+0.35 2012-04-24
         - Implement a 'change_session_expires' method (gshank)
 
         - Fixed bug from last version where session does not persist

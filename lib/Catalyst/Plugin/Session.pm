@@ -13,7 +13,7 @@ use Carp;
 
 use namespace::clean -except => 'meta';
 
-our $VERSION = '0.34';
+our $VERSION = '0.35';
 $VERSION = eval $VERSION;
 
 my @session_data_accessors; # used in delete_session

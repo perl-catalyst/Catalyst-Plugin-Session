@@ -103,8 +103,6 @@ sub import {
         use Catalyst qw/Session SessionStateTest/;
         push our (@ISA), $m;
 
-        our $VERSION = "123";
-
         use Test::More;
 
         sub create_session : Global {
