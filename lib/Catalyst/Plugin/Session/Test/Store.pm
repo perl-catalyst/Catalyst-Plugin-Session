@@ -57,6 +57,8 @@ sub import {
         use Catalyst qw/Session SessionStateTest/;
         push our (@ISA), $m;
 
+        our $VERSION = "123"; # Do not remove
+
         use strict;
         use warnings;
 
@@ -102,6 +104,8 @@ sub import {
             SessionStoreTest2;
         use Catalyst qw/Session SessionStateTest/;
         push our (@ISA), $m;
+
+        our $VERSION = "123";
 
         use Test::More;
 
