@@ -1,4 +1,5 @@
 \bMYMETA.yml\b
+\bMYMETA.json\b
 
 # Avoid version control files.
 \bRCS\b
