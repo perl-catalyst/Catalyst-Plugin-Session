@@ -26,11 +26,23 @@ is($res->code, 200, 'succeeded');
 my $cookie = $res->header('Set-Cookie');
 ok($cookie, 'Have a cookie');
 
-# check that the cookie has not been reset by the get
+# cookie is changed by the get
+sleep(1);
 ($res, $c) = ctx_request(GET 'http://localhost/page', Cookie => $cookie);
-like($c->res->body, qr/logged in/, 'Am logged in');
+like($c->res->body, qr/logged in/, 'logged in');
 my $new_cookie = $res->header('Set-Cookie');
-is( $cookie, $new_cookie, 'cookie is the same' );
+isnt( $cookie, $new_cookie, 'cookie expires has been updated' );
+
+# request with no cookie
+($res, $c) = ctx_request(GET 'http://localhost/page' );
+like($c->res->body, qr/please login/, 'not logged in');
+$new_cookie = $res->header('Set-Cookie');
+ok( ! defined $new_cookie, 'no cookie created' );
+
+# check that cookie is reset by reset_session_expires
+($res, $c) = ctx_request(GET 'http://localhost/reset_session_expires', Cookie => $cookie);
+my $reset_cookie = $res->header('Set-Cookie');
+isnt( $cookie, $reset_cookie, 'Cookie has been changed by reset_session' );
 
 # this checks that cookie exists after a logout and redirect
 # Catalyst::Plugin::Authentication removes the user session (remove_persisted_user)

@@ -127,4 +127,10 @@ sub change_session_expires : Global {
     $c->res->output($c->session_expires);
 }
 
+sub reset_session_expires : Global {
+    my ($self, $c) = @_;
+    $c->reset_session_expires;
+    $c->res->output($c->session_expires);
+}
+
 1;
