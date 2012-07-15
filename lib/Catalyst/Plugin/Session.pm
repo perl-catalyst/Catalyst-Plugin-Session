@@ -105,6 +105,11 @@ sub finalize_headers {
     # fix cookie before we send headers
     $c->_save_session_expires;
 
+    # Force extension of session_expires before finalizing headers, so a pos
+    # up to date. First call to session_expires will extend the expiry, subs
+    # just return the previously extended value.
+    $c->session_expires;
+
     return $c->maybe::next::method(@_);
 }
 
