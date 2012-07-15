@@ -1,5 +1,8 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+        - Remove use of Plack::Middleware::ForceEnv from the tests
+          as it was not used / needed
+
 0.35 2012-04-24
         - Implement a 'change_session_expires' method (gshank)
 

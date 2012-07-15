@@ -38,13 +38,8 @@ $ua->content_contains('session variable set');
 
 
 # Change Client
-#local $ENV{REMOTE_ADDR} = "192.168.1.2";
 use Plack::Builder;
 my $app = SessionTestApp->psgi_app(@_);
-builder {
-  enable 'ForceEnv' => REMOTE_ADDR => "192.168.1.2";
-  $app;
-};
 my $ua2 = Test::WWW::Mechanize::PSGI->new(
     app => $app,
     cookie_jar => {}
