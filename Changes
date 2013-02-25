@@ -1,5 +1,6 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+0.37 2013-02-25
       - Fix t/live_verify_address.t to skip of Catalyst::Plugin::Authentication
         is not installed, fixing RT#81506.
 
