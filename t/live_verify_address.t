@@ -16,6 +16,9 @@ BEGIN {
     or plan skip_all =>
         'Test::WWW::Mechanize::PSGI is required for this test';
 
+    eval { require Catalyst::Plugin::Authentication; 1 }
+      or plan skip_all => "Catalyst::Plugin::Authentication is required for this test";
+
     plan tests => 12;
 }
 

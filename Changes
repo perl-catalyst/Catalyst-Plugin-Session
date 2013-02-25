@@ -1,5 +1,8 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+      - Fix t/live_verify_address.t to skip of Catalyst::Plugin::Authentication
+        is not installed, fixing RT#81506.
+
 0.36 2012-10-19
        - Re-pack with new Module::Install which doesn't get
          MYMETA.yaml wrong.
