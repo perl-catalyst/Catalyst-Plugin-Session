@@ -1045,14 +1045,14 @@ hours).
 
 =item verify_address
 
-When true, C<<$c->request->address>> will be checked at prepare time. If it is
+When true, C<< $c->request->address >> will be checked at prepare time. If it is
 not the same as the address that initiated the session, the session is deleted.
 
 Defaults to false.
 
 =item verify_user_agent
 
-When true, C<<$c->request->user_agent>> will be checked at prepare time. If it
+When true, C<< $c->request->user_agent >> will be checked at prepare time. If it
 is not the same as the user agent that initiated the session, the session is
 deleted.
 
