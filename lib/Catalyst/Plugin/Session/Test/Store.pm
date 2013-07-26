@@ -158,7 +158,7 @@ sub import {
 
     {
 
-        package # Hide fram PAUSE
+        package # Hide from PAUSE
             t2;
         use Catalyst::Test "SessionStoreTest2";
 

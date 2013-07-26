@@ -744,7 +744,7 @@ all the keys which haven't changed since the flash data was loaded at the end
 of every request.
 
 Note that use of the flash is an easy way to get data across requests, but
-it's also strongly disrecommended, due it it being inherently plagued with
+it's also strongly disrecommended, due to it being inherently plagued with
 race conditions. This means that it's unlikely to work well if your
 users have multiple tabs open at once, or if your site does a lot of AJAX
 requests.
@@ -976,7 +976,7 @@ This clears the various accessors after saving to the store.
 
 =item dump_these
 
-See L<Catalyst/dump_these> - ammends the session data structure to the list of
+See L<Catalyst/dump_these> - amends the session data structure to the list of
 dumped objects if session ID is defined.
 
 
@@ -1033,7 +1033,7 @@ the store.
         expires => 1234,
     });
 
-All configuation parameters are provided in a hash reference under the
+All configuration parameters are provided in a hash reference under the
 C<Plugin::Session> key in the configuration hash.
 
 =over 4
@@ -1171,7 +1171,7 @@ Florian Ragwitz (rafl) C<rafl@debian.org>
 
 Kent Fredric (kentnl)
 
-And countless other contributers from #catalyst. Thanks guys!
+And countless other contributors from #catalyst. Thanks guys!
 
 =head1 Contributors
 
