@@ -11,6 +11,9 @@ __PACKAGE__->config('Plugin::Session' => {
         verify_user_agent => 1,
         verify_address => 1,
 
+        expires => 20,
+        expiry_threshold => 10,
+
     },
 
     'Plugin::Authentication' => {
