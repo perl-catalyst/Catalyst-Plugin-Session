@@ -155,7 +155,6 @@ sub _save_session_expires {
             my $cutoff = ( $c->get_session_data("expires:$sid") || 0 ) - $threshold;
 
             if (!$threshold || $cutoff <= time) {
-
                 my $expires = $c->session_expires; # force extension
                 $c->store_session_data( "expires:$sid" => $expires );
 
@@ -373,7 +372,7 @@ sub session_expires {
 
 sub extend_session_expires {
     my ( $c, $expires ) = @_;
-    $c->_extended_session_expires( my $updated = $c->calculate_initial_session_expires( $expires ) );
+    $c->_extended_session_expires( my $updated = $c->calculate_initial_session_expires() );
     $c->extend_session_id( $c->sessionid, $updated );
     return $updated;
 }
