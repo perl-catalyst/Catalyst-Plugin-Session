@@ -80,6 +80,7 @@ sub setup_session {
         expires        => 7200,
         verify_address => 0,
         verify_user_agent => 0,
+        expiry_threshold => 0,
         %$cfg,
     );
 
@@ -147,10 +148,21 @@ sub _save_session_expires {
     my $c = shift;
 
     if ( defined($c->_session_expires) ) {
-        my $expires = $c->session_expires; # force extension
 
-        my $sid = $c->sessionid;
-        $c->store_session_data( "expires:$sid" => $expires );
+        my $threshold = $c->_session_plugin_config->{expiry_threshold} || 0;
+
+        if ( my $sid = $c->sessionid ) {
+            my $cutoff = ( $c->get_session_data("expires:$sid") || 0 ) - $threshold;
+
+            if (!$threshold || $cutoff <= time) {
+
+                my $expires = $c->session_expires; # force extension
+                $c->store_session_data( "expires:$sid" => $expires );
+
+            }
+
+        }
+
     }
 }
 
@@ -1042,6 +1054,16 @@ C<Plugin::Session> key in the configuration hash.
 
 The time-to-live of each session, expressed in seconds. Defaults to 7200 (two
 hours).
+
+=item expiry_threshold
+
+The time (in seconds) before the session expiration to update the
+expiration time (and thus the session).
+
+The purpose of this is to keep the session store from being updated
+when nothing else in the session is updated.
+
+Defaults to 0 (in which case, the expiration will always be updated).
 
 =item verify_address
 

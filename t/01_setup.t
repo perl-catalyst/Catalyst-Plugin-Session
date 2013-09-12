@@ -65,7 +65,7 @@ is( $calls, 0, "no fatal error logged either" );
 
 cmp_deeply(
     [ keys %{ $config{'Plugin::Session'} } ],
-    bag(qw/expires verify_address verify_user_agent/),
+    bag(qw/expires verify_address verify_user_agent expiry_threshold/),
     "default values for config were populated in successful setup",
 );
 
