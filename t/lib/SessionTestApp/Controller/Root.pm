@@ -133,13 +133,4 @@ sub reset_session_expires : Global {
     $c->res->output($c->session_expires);
 }
 
-sub get_expires : Global {
-    my ( $self, $c ) = @_;
-    $c->session;
-    if (my $sid = $c->sessionid) {
-        $c->finalize_headers(); # force expiration to be updated
-        $c->res->output($c->get_session_data("expires:$sid"));
-    }
-}
-
 1;

@@ -10,10 +10,6 @@ __PACKAGE__->config('Plugin::Session' => {
         # needed for live_verify_user_agent.t; should be harmless for other tests
         verify_user_agent => 1,
         verify_address => 1,
-
-        expires => 20,
-        expiry_threshold => 10,
-
     },
 
     'Plugin::Authentication' => {

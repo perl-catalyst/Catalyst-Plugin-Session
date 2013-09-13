@@ -150,19 +150,15 @@ sub _save_session_expires {
 
     if ( defined($c->_session_expires) ) {
 
-        my $threshold = $c->_session_plugin_config->{expiry_threshold} || 0;
+        if (my $sid = $c->sessionid) {
 
-        if ( my $sid = $c->sessionid ) {
-            my $cutoff = $c->_get_stored_session_expires - $threshold;
-
-            if (!$threshold || $cutoff <= time) {
-                my $expires = $c->session_expires; # force extension
-                $c->store_session_data( "expires:$sid" => $expires );
-
+            my $current  = $c->_get_stored_session_expires;
+            my $extended = $c->session_expires;
+            if ($extended > $current) {
+                $c->store_session_data( "expires:$sid" => $extended );
             }
 
         }
-
     }
 }
 
@@ -373,9 +369,32 @@ sub session_expires {
 
 sub extend_session_expires {
     my ( $c, $expires ) = @_;
-    $c->_extended_session_expires( my $updated = $c->calculate_initial_session_expires() );
-    $c->extend_session_id( $c->sessionid, $updated );
-    return $updated;
+
+    my $threshold = $c->_session_plugin_config->{expiry_threshold} || 0;
+
+    if ( my $sid = $c->sessionid ) {
+        my $expires = $c->_get_stored_session_expires;
+        my $cutoff  = $expires - $threshold;
+
+        if (!$threshold || $cutoff <= time) {
+
+            $c->_extended_session_expires( my $updated = $c->calculate_initial_session_expires() );
+            $c->extend_session_id( $sid, $updated );
+
+            return $updated;
+
+        } else {
+
+            return $expires;
+
+        }
+
+    } else {
+
+        return;
+
+    }
+
 }
 
 sub change_session_expires {

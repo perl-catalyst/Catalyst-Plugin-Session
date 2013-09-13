@@ -19,27 +19,41 @@ BEGIN {
 }
 
 use lib "t/lib";
-use Test::WWW::Mechanize::Catalyst "SessionTestApp";
+use Test::WWW::Mechanize::Catalyst "SessionExpiry";
 
 my $ua = Test::WWW::Mechanize::Catalyst->new;
 
-my $res = $ua->get( "http://localhost/get_expires" );
-ok($res->is_success, "get expires");
+my $res = $ua->get( "http://localhost/session_data_expires" );
+ok($res->is_success, "session_data_expires");
 
-my $expiry = $res->decoded_content;
+my $expiry = $res->decoded_content + 0;
+
+$res = $ua->get( "http://localhost/session_expires" );
+ok($res->is_success, "session_expires");
+is($res->decoded_content, $expiry, "session_expires == session_data_expires");
 
 sleep(1);
 
-$res = $ua->get( "http://localhost/get_expires" );
-ok($res->is_success, "get expires");
+$res = $ua->get( "http://localhost/session_data_expires" );
+ok($res->is_success, "session_data_expires");
 
 is($res->decoded_content, $expiry, "expiration not updated");
 
+$res = $ua->get( "http://localhost/session_expires" );
+ok($res->is_success, "session_expires");
+is($res->decoded_content, $expiry, "session_expires == session_data_expires");
+
 sleep(10);
 
-$res = $ua->get( "http://localhost/get_expires" );
-ok($res->is_success, "get expires");
+$res = $ua->get( "http://localhost/session_data_expires" );
+ok($res->is_success, "session_data_expires");
 
-isnt($res->decoded_content, $expiry, "expiration updated");
+my $updated = $res->decoded_content + 0;
+ok($updated > $expiry, "expiration updated");
+
+$res = $ua->get( "http://localhost/session_expires" );
+ok($res->is_success, "session_expires");
+is($res->decoded_content, $updated, "session_expires == session_data_expires");
+
 
 done_testing;
