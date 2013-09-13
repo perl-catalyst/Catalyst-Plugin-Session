@@ -10,6 +10,7 @@ use Digest              ();
 use overload            ();
 use Object::Signature   ();
 use Carp;
+use List::Util qw/ max /;
 
 use namespace::clean -except => 'meta';
 
@@ -152,7 +153,7 @@ sub _save_session_expires {
         my $threshold = $c->_session_plugin_config->{expiry_threshold} || 0;
 
         if ( my $sid = $c->sessionid ) {
-            my $cutoff = ( $c->get_session_data("expires:$sid") || 0 ) - $threshold;
+            my $cutoff = $c->_get_stored_session_expires - $threshold;
 
             if (!$threshold || $cutoff <= time) {
                 my $expires = $c->session_expires; # force extension
@@ -214,7 +215,7 @@ sub _load_session_expires {
     $c->_tried_loading_session_expires(1);
 
     if ( my $sid = $c->sessionid ) {
-        my $expires = $c->get_session_data("expires:$sid") || 0;
+        my $expires =  $c->_get_stored_session_expires;
 
         if ( $expires >= time() ) {
             $c->_session_expires( $expires );
@@ -386,20 +387,24 @@ sub change_session_expires {
     $c->store_session_data( "expires:$sid" => $time_exp );
 }
 
+sub _get_stored_session_expires {
+    my ($c) = @_;
+
+    if ( my $sid = $c->sessionid ) {
+        return $c->get_session_data("expires:$sid") || 0;
+    } else {
+        return 0;
+    }
+}
+
 sub initial_session_expires {
     my $c = shift;
     return ( time() + $c->_session_plugin_config->{expires} );
 }
 
 sub calculate_initial_session_expires {
-    my $c = shift;
-
-    my $initial_expires = $c->initial_session_expires;
-    my $stored_session_expires = 0;
-    if ( my $sid = $c->sessionid ) {
-        $stored_session_expires = $c->get_session_data("expires:$sid") || 0;
-    }
-    return ( $initial_expires > $stored_session_expires ) ? $initial_expires : $stored_session_expires;
+    my ($c) = @_;
+    return max( $c->initial_session_expires, $c->_get_stored_session_expires );
 }
 
 sub calculate_extended_session_expires {
