@@ -18,6 +18,7 @@ requires 'namespace::clean' => '0.10';
 requires 'Digest';
 requires 'File::Spec';
 requires 'File::Temp';
+requires 'List::Util';
 requires 'Object::Signature';
 requires 'MRO::Compat';
 requires 'MooseX::Emulate::Class::Accessor::Fast' => '0.00801';
