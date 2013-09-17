@@ -1080,8 +1080,8 @@ hours).
 
 =item expiry_threshold
 
-The time (in seconds) before the session expiration to update the
-expiration time (and thus the session).
+Only update the session expiry time if it would otherwise expire
+within this many seconds from now.
 
 The purpose of this is to keep the session store from being updated
 when nothing else in the session is updated.
@@ -1221,6 +1221,8 @@ And countless other contributers from #catalyst. Thanks guys!
 =head1 Contributors
 
 Devin Austin (dhoss) <dhoss@cpan.org>
+
+Robert Rothenberg <rrwo@cpan.org>
 
 =head1 COPYRIGHT & LICENSE
 
