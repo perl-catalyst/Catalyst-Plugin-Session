@@ -1,5 +1,12 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+0.38 2013-09-18
+      - New feature: "expiry_threshold" which allows you more control over when
+      this plugin checks and updates the expiration date for the session.
+      This is useful when you have high traffic and need to reduce the number
+      of session expiration hits (like if you are using a database for sessions
+      and your db is getting pounded).
+
 0.37 2013-02-25
       - Fix t/live_verify_address.t to skip if Catalyst::Plugin::Authentication
         is not installed, fixing RT#81506.
