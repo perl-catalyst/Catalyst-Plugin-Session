@@ -1238,7 +1238,7 @@ And countless other contributers from #catalyst. Thanks guys!
 
 Devin Austin (dhoss) <dhoss@cpan.org>
 
-Robert Rothenberg <rrwo@cpan.org>
+Robert Rothenberg <rrwo@cpan.org> (on behalf of Foxtons Ltd.)
 
 =head1 COPYRIGHT & LICENSE
 
