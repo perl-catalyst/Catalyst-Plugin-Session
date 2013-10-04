@@ -1,5 +1,8 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+      - Fixed a bug when "expiry_threshold" is non-zero, where changes to the
+      session were not saved.
+
 0.38 2013-09-18
       - New feature: "expiry_threshold" which allows you more control over when
       this plugin checks and updates the expiration date for the session.
