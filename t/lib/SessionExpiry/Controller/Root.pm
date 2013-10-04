@@ -20,3 +20,9 @@ sub session_expires : Global {
     $c->session;
     $c->res->output($c->session_expires);
 }
+
+sub update_session : Global {
+    my ($self, $c) = @_;
+    $c->session->{foo} ++;
+    $c->res->output($c->session->{foo});
+}

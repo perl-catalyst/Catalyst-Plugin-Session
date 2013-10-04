@@ -138,6 +138,27 @@ sub finalize_session {
     $c->_clear_session_instance_data;
 }
 
+sub _session_updated {
+    my $c = shift;
+
+    if ( my $session_data = $c->_session ) {
+
+        no warnings 'uninitialized';
+        if ( Object::Signature::signature($session_data) ne
+            $c->_session_data_sig )
+        {
+            return $session_data;
+        } else {
+            return;
+        }
+
+    } else {
+
+        return;
+
+    }
+}
+
 sub _save_session_id {
     my $c = shift;
 
@@ -165,16 +186,11 @@ sub _save_session_expires {
 sub _save_session {
     my $c = shift;
 
-    if ( my $session_data = $c->_session ) {
+    if ( my $session_data = $c->_session_updated ) {
 
-        no warnings 'uninitialized';
-        if ( Object::Signature::signature($session_data) ne
-            $c->_session_data_sig )
-        {
-            $session_data->{__updated} = time();
-            my $sid = $c->sessionid;
-            $c->store_session_data( "session:$sid" => $session_data );
-        }
+        $session_data->{__updated} = time();
+        my $sid = $c->sessionid;
+        $c->store_session_data( "session:$sid" => $session_data );
     }
 }
 
@@ -376,7 +392,7 @@ sub extend_session_expires {
         my $expires = $c->_get_stored_session_expires;
         my $cutoff  = $expires - $threshold;
 
-        if (!$threshold || $cutoff <= time) {
+        if (!$threshold || $cutoff <= time || $c->_session_updated) {
 
             $c->_extended_session_expires( my $updated = $c->calculate_initial_session_expires() );
             $c->extend_session_id( $sid, $updated );
