@@ -191,6 +191,9 @@ sub _save_session {
         $session_data->{__updated} = time();
         my $sid = $c->sessionid;
         $c->store_session_data( "session:$sid" => $session_data );
+
+        $c->_session_data_sig(Object::Signature::signature($session_data));
+
     }
 }
 
