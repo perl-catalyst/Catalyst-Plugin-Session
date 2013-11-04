@@ -1,5 +1,7 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+      - Fixed a bug where the session signature wasn't updated on save
+
 0.39 2013-10-16
       - Fixed a bug when "expiry_threshold" is non-zero, where changes to the
       session were not saved.
