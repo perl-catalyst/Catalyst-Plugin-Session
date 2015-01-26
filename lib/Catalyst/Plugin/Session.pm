@@ -111,9 +111,12 @@ sub finalize_headers {
     # up to date. First call to session_expires will extend the expiry, subs
     # just return the previously extended value.
     $c->session_expires;
+    $c->finalize_session;
 
     return $c->maybe::next::method(@_);
 }
+
+sub _needs_early_session_finalization { 0 }
 
 sub finalize_body {
     my $c = shift;
@@ -121,7 +124,7 @@ sub finalize_body {
     # We have to finalize our session *before* $c->engine->finalize_xxx is called,
     # because we do not want to send the HTTP response before the session is stored/committed to
     # the session database (or whatever Session::Store you use).
-    $c->finalize_session;
+    $c->_clear_session_instance_data;
 
     return $c->maybe::next::method(@_);
 }
@@ -135,7 +138,6 @@ sub finalize_session {
     $c->_save_session;
     $c->_save_flash;
 
-    $c->_clear_session_instance_data;
 }
 
 sub _session_updated {
