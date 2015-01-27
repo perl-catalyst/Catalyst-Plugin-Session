@@ -1,5 +1,10 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+0.40 2015-01-26
+      - Add a flag so that a storage can finalize during finalize_header rather
+      than finalize_body.  This is to enable storages that need to write to the
+      HTTP header (such as the cookie based store).
+
 0.39 2013-10-16
       - Fixed a bug when "expiry_threshold" is non-zero, where changes to the
       session were not saved.
