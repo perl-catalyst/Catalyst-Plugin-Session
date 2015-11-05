@@ -482,7 +482,7 @@ sub _load_sessionid {
         } else {
             my $err = "Tried to set invalid session ID '$sid'";
             $c->log->error($err);
-            Catalyst::Exception->throw($err);
+            return undef;
         }
     }
 
