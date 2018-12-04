@@ -9,6 +9,7 @@ use Catalyst::Exception ();
 use Digest              ();
 use overload            ();
 use Object::Signature   ();
+use HTML::Entities      ();
 use Carp;
 use List::Util qw/ max /;
 
@@ -480,6 +481,7 @@ sub _load_sessionid {
             $c->_sessionid($sid);
             return $sid;
         } else {
+            $sid = HTML::Entities::encode_entities($sid);
             my $err = "Tried to set invalid session ID '$sid'";
             $c->log->error($err);
             Catalyst::Exception->throw($err);
