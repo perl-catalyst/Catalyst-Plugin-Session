@@ -15,7 +15,7 @@ use List::Util qw/ max /;
 
 use namespace::clean -except => 'meta';
 
-our $VERSION = '0.40';
+our $VERSION = '0.41';
 $VERSION = eval $VERSION;
 
 my @session_data_accessors; # used in delete_session
@@ -671,7 +671,7 @@ sub set_session_id { shift->maybe::next::method(@_) }
 sub delete_session_id { shift->maybe::next::method(@_) }
 sub extend_session_id { shift->maybe::next::method(@_) }
 
-__PACKAGE__;
+__PACKAGE__->meta->make_immutable;
 
 __END__
 
