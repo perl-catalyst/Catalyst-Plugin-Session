@@ -1,3 +1,4 @@
+use lib '.';
 use inc::Module::Install 0.87;
 use Module::Install::AuthorTests;
 
