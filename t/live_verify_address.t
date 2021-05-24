@@ -1,24 +1,13 @@
 use strict;
 use warnings;
 
+use Test::Needs {
+  'Catalyst::Plugin::Session::State::Cookie' => '0.03',
+  'Catalyst::Plugin::Authentication' => 0,
+  'Test::WWW::Mechanize::PSGI' => 0,
+};
+
 use Test::More;
-BEGIN {
-    eval { require Catalyst::Plugin::Session::State::Cookie; Catalyst::Plugin::Session::State::Cookie->VERSION(0.03) }
-      or plan skip_all =>
-      "Catalyst::Plugin::Session::State::Cookie 0.03 or higher is required for this test";
-
-    eval {
-        require Test::WWW::Mechanize::PSGI;
-        #Test::WWW::Mechanize::Catalyst->VERSION(0.51);
-    }
-    or plan skip_all =>
-        'Test::WWW::Mechanize::PSGI is required for this test';
-
-    eval { require Catalyst::Plugin::Authentication; 1 }
-      or plan skip_all => "Catalyst::Plugin::Authentication is required for this test";
-
-    plan tests => 12;
-}
 
 use lib "t/lib";
 use Test::WWW::Mechanize::PSGI;
@@ -63,5 +52,4 @@ local $ENV{REMOTE_ADDR} = "192.168.1.2";
 $ua->get_ok( "http://localhost/get_session_variable/logged" );
 $ua->content_contains('VAR_logged=in');
 
-
-
+done_testing;

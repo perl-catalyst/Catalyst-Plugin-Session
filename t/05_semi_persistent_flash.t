@@ -1,24 +1,15 @@
 use strict;
+use warnings;
+
+use Test::Needs {
+  'Catalyst::Plugin::Session::State::Cookie' => '0.03',
+  'Test::WWW::Mechanize::Catalyst' => '0.51',
+};
 
 use Test::More;
 
-BEGIN {
-    eval { require Catalyst::Plugin::Session::State::Cookie; Catalyst::Plugin::Session::State::Cookie->VERSION(0.03) }
-        or plan skip_all =>
-            "Catalyst::Plugin::Session::State::Cookie version 0.03 or higher is required for this test";
-
-    eval {
-        require Test::WWW::Mechanize::Catalyst;
-        Test::WWW::Mechanize::Catalyst->VERSION(0.51);
-    }
-    or plan skip_all =>
-        'Test::WWW::Mechanize::Catalyst >= 0.51 is required for this test';
-
-    plan tests => '10';
-
-}
-
 use lib "t/lib";
+
 use Test::WWW::Mechanize::Catalyst 'FlashTestApp';
 
 my $ua = Test::WWW::Mechanize::Catalyst->new;
@@ -44,3 +35,4 @@ $ua->content_contains( "flash set 3rd time, same val as prev.", "set third");
 $ua->get_ok( "http://localhost/fifth");
 $ua->content_contains( "flash is not", "flash has gone");
 
+done_testing;

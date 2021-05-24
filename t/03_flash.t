@@ -1,14 +1,13 @@
 use strict;
 use warnings;
 
-use Test::More tests => 12;
+use Test::More;
 use Test::Deep;
 
-my $m;
-BEGIN { use_ok( $m = "Catalyst::Plugin::Session" ) }
+use Catalyst::Plugin::Session;
 
 my $c_meta = Class::MOP::Class->create_anon_class(
-    superclasses => [ $m, 'Moose::Object', ],
+    superclasses => [ 'Catalyst::Plugin::Session', 'Moose::Object', ],
 );
 my $c = $c_meta->name->new;
 
@@ -74,3 +73,5 @@ $c->finalize_body;
 $c->prepare_action;
 
 is_deeply( $c->stash, { bar => "gorch" }, "flash copied to stash" );
+
+done_testing;

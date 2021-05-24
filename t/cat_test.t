@@ -1,20 +1,16 @@
 use strict;
 use warnings;
+
+use Test::Needs qw(
+  Catalyst::Plugin::Session::State::Cookie
+  Catalyst::Plugin::Authentication
+);
+
 use Test::More;
+
 use HTTP::Request::Common;
 
-# setup library path
-use FindBin qw($Bin);
-use lib "$Bin/lib";
-
-# this test was copied from CatalystX::SimpleLogin
-
-BEGIN {
-    plan skip_all => "Need Catalyst::Plugin::Session::State::Cookie"
-        unless do { local $@; eval { require Catalyst::Plugin::Session::State::Cookie; } };
-    plan skip_all => "Need Catalyst::Plugin::Authentication"
-        unless do { local $@; eval { require Catalyst::Plugin::Authentication; } };
-}
+use lib "t/lib";
 
 use Catalyst::Test 'SessionTestApp';
 my ($res, $c);

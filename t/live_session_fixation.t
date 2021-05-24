@@ -1,23 +1,12 @@
 use strict;
 use warnings;
 
+use Test::Needs {
+  'Catalyst::Plugin::Session::State::Cookie' => '0.03',
+  'Test::WWW::Mechanize::Catalyst' => '0.51',
+};
+
 use Test::More;
-use Data::Dumper;
-
-BEGIN {
-    eval { require Catalyst::Plugin::Session::State::Cookie; Catalyst::Plugin::Session::State::Cookie->VERSION(0.03) }
-      or plan skip_all =>
-      "Catalyst::Plugin::Session::State::Cookie 0.03 or higher is required for this test";
-
-    eval {
-        require Test::WWW::Mechanize::Catalyst;
-        Test::WWW::Mechanize::Catalyst->VERSION(0.51);
-    }
-    or plan skip_all =>
-        'Test::WWW::Mechanize::Catalyst >= 0.51 is required for this test';
-
-    plan tests => 10;
-}
 
 use lib "t/lib";
 use Test::WWW::Mechanize::Catalyst "SessionTestApp";
@@ -90,3 +79,5 @@ $ua2->content_is("VAR_var2=n.a.");
 #just diagnostic dump
 $ua2->get( "http://localhost/dump_session" );
 #diag "End2:".$ua2->content;
+
+done_testing;

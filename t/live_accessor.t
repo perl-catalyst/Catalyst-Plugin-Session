@@ -1,22 +1,12 @@
 use strict;
 use warnings;
 
+use Test::Needs {
+  'Catalyst::Plugin::Session::State::Cookie' => '0.03',
+  'Test::WWW::Mechanize::Catalyst' => '0.51',
+};
+
 use Test::More;
-
-BEGIN {
-    eval { require Catalyst::Plugin::Session::State::Cookie; Catalyst::Plugin::Session::State::Cookie->VERSION(0.03) }
-      or plan skip_all =>
-      "Catalyst::Plugin::Session::State::Cookie 0.03 or higher is required for this test";
-
-    eval {
-        require Test::WWW::Mechanize::Catalyst;
-        Test::WWW::Mechanize::Catalyst->VERSION(0.51);
-    }
-    or plan skip_all =>
-        'Test::WWW::Mechanize::Catalyst >= 0.51 is required for this test';
-
-    plan tests => 4;
-}
 
 use lib "t/lib";
 use Test::WWW::Mechanize::Catalyst "SessionTestApp";
@@ -31,3 +21,4 @@ $ua->content_contains("four: 4", "hashref setter works okay");
 
 $ua->content_contains("five: 5", "direct access works okay");
 
+done_testing;
