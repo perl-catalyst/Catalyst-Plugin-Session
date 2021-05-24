@@ -34,7 +34,6 @@ my %META = (
     },
     develop => {
       requires => {
-        'Test::Exception' => 0,
         'Test::WWW::Mechanize::PSGI' => 0,
         'Test::Pod' => 0,
         'Test::Pod::Coverage' => 0,
