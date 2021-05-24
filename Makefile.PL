@@ -28,7 +28,6 @@ my %META = (
         'Moose' => '0.76',
         'HTML::Entities' => 0,
         'Test::More' => '0.88',
-        'Tie::RefHash' => '1.34', # an indirect dep. needs a certain version.
         'perl' => '5.008',
       },
     },
