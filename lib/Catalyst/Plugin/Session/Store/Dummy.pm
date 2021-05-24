@@ -1,5 +1,3 @@
-#!/usr/bin/perl
-
 package Catalyst::Plugin::Session::Store::Dummy;
 use base qw/Catalyst::Plugin::Session::Store/;
 
