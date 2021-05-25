@@ -26,58 +26,54 @@ my $cookie1 = $res->header('Set-Cookie');
 ok $cookie1, "Set-Cookie 1";
 isnt $cookie1, qr/$injected_cookie_str/, "Logging in generates us a new cookie";
 
-$ua1->get( "http://localhost/get_sessid" );
-my $sid1 = $ua1->content;
+$res = $ua1->get( "http://localhost/get_sessid" );
+my $sid1 = $res->content;
 
 #set session variable var1 before session id change
 $ua1->get( "http://localhost/set_session_variable/var1/set_before_change");
-$ua1->get( "http://localhost/get_session_variable/var1");
-$ua1->content_is("VAR_var1=set_before_change");
+$res = $ua1->get( "http://localhost/get_session_variable/var1");
+is +$res->content, 'VAR_var1=set_before_change';
 
 #just diagnostic dump
-$ua1->get( "http://localhost/dump_session" );
-#diag "Before-change:".$ua1->content;
+#diag "Before-change:".$ua1->get( "http://localhost/dump_session" )->content;
 
 #change session id; all session data should be kept; old session id invalidated
-my $res2 = $ua1->get( "http://localhost/change_sessid" );
-my $cookie2 = $res2->header('Set-Cookie');
+$res = $ua1->get( "http://localhost/change_sessid" );
+my $cookie2 = $res->header('Set-Cookie');
 
 ok $cookie2, "Set-Cookie 2";
 isnt $cookie2, $cookie1, "Cookie changed";
 
-$ua1->get( "http://localhost/get_sessid" );
-my $sid2 = $ua1->content;
+$res = $ua1->get( "http://localhost/get_sessid" );
+my $sid2 = $res->content;
 isnt $sid2, $sid1, 'SID changed';
 
 #just diagnostic dump
-$ua1->get( "http://localhost/dump_session" );
-#diag "After-change:".$ua1->content;
+#diag "After-change:".$ua1->get( "http://localhost/dump_session" )->content;
 
 #set session variable var2 after session id change
 $ua1->get( "http://localhost/set_session_variable/var2/set_after_change");
 
 #check if var1 and var2 contain expected values
-$ua1->get( "http://localhost/get_session_variable/var1");
-$ua1->content_is("VAR_var1=set_before_change");
-$ua1->get( "http://localhost/get_session_variable/var2");
-$ua1->content_is("VAR_var2=set_after_change");
+$res = $ua1->get( "http://localhost/get_session_variable/var1");
+is +$res->content, 'VAR_var1=set_before_change';
+$res = $ua1->get( "http://localhost/get_session_variable/var2");
+is +$res->content, 'VAR_var2=set_after_change';
 
 #just diagnostic dump
-$ua1->get( "http://localhost/dump_session" );
-#diag "End1:".$ua1->content;
+#diag "End1".$ua1->get( "http://localhost/dump_session" )->content;
 
 #try to use old cookie value (before session_id_change)
 my $ua2 = Test::WWW::Mechanize::Catalyst->new;
 $ua2->cookie_jar->set_cookie( @injected_cookie );
 
 #if we take old cookie we should not be able to get any old session data
-$ua2->get( "http://localhost/get_session_variable/var1");
-$ua2->content_is("VAR_var1=n.a.");
-$ua2->get( "http://localhost/get_session_variable/var2");
-$ua2->content_is("VAR_var2=n.a.");
+$res = $ua2->get( "http://localhost/get_session_variable/var1");
+is +$res->content, 'VAR_var1=n.a.';
+$res = $ua2->get( "http://localhost/get_session_variable/var2");
+is +$res->content, 'VAR_var2=n.a.';
 
 #just diagnostic dump
-$ua2->get( "http://localhost/dump_session" );
-#diag "End2:".$ua2->content;
+#diag "End2".$ua1->get( "http://localhost/dump_session" )->content;
 
 done_testing;

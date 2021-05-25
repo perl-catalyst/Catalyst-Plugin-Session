@@ -9,18 +9,20 @@ use Test::Needs {
 use Test::More;
 
 use lib "t/lib";
-
-
 use Test::WWW::Mechanize::Catalyst "SessionValid";
 
 my $ua = Test::WWW::Mechanize::Catalyst->new;
 
-$ua->get_ok( "http://localhost/", "initial get" );
-$ua->content_contains( "value set", "page contains expected value" );
+my $res;
+
+$res = $ua->get( "http://localhost/" );
+ok +$res->is_success, "initial get";
+like +$res->content, qr{value set}, "page contains expected value";
 
 sleep 2;
 
-$ua->get_ok( "http://localhost/", "grab the page again, after the session has expired" );
-$ua->content_contains( "value set", "page contains expected value" );
+$res = $ua->get( "http://localhost/" );
+ok +$res->is_success, "grab the page again, after the session has expired";
+like +$res->content, qr{value set}, "page contains expected value";
 
 done_testing;

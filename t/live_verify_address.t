@@ -4,52 +4,52 @@ use warnings;
 use Test::Needs {
   'Catalyst::Plugin::Session::State::Cookie' => '0.03',
   'Catalyst::Plugin::Authentication' => 0,
-  'Test::WWW::Mechanize::PSGI' => 0,
+  'Test::WWW::Mechanize::Catalyst' => '0.51',
 };
 
 use Test::More;
 
 use lib "t/lib";
-use Test::WWW::Mechanize::PSGI;
-use SessionTestApp;
-my $ua = Test::WWW::Mechanize::PSGI->new(
-  app => SessionTestApp->psgi_app(@_),
-  cookie_jar => {}
-);
+use Test::WWW::Mechanize::Catalyst "SessionTestApp";
+
+my $ua = Test::WWW::Mechanize::Catalyst->new;
 
 # Test without delete __address
 local $ENV{REMOTE_ADDR} = "192.168.1.1";
 
-$ua->get_ok( "http://localhost/login" );
-$ua->content_contains('logged in');
+my $res;
 
-$ua->get_ok( "http://localhost/set_session_variable/logged/in" );
-$ua->content_contains('session variable set');
+$res = $ua->get( "http://localhost/login" );
+ok +$res->is_success;
+like +$res->content, qr{logged in};
+
+$res = $ua->get( "http://localhost/set_session_variable/logged/in" );
+ok +$res->is_success;
+like +$res->content, qr{session variable set};
 
 
 # Change Client
-use Plack::Builder;
-my $app = SessionTestApp->psgi_app(@_);
-my $ua2 = Test::WWW::Mechanize::PSGI->new(
-    app => $app,
-    cookie_jar => {}
-);
-$ua2->get_ok( "http://localhost/get_session_variable/logged");
-$ua2->content_contains('VAR_logged=n.a.');
+my $ua2 = Test::WWW::Mechanize::Catalyst->new;
+$res = $ua2->get( "http://localhost/get_session_variable/logged" );
+ok +$res->is_success;
+like +$res->content, qr{VAR_logged=n\.a\.};
 
 # Inital Client
 local $ENV{REMOTE_ADDR} = "192.168.1.1";
 
-$ua->get_ok( "http://localhost/login_without_address" );
-$ua->content_contains('logged in (without address)');
+$res = $ua->get( "http://localhost/login_without_address" );
+ok +$res->is_success;
+like +$res->content, qr{logged in \(without address\)};
 
-$ua->get_ok( "http://localhost/set_session_variable/logged/in" );
-$ua->content_contains('session variable set');
+$res = $ua->get( "http://localhost/set_session_variable/logged/in" );
+ok +$res->is_success;
+like +$res->content, qr{session variable set};
 
 # Change Client
 local $ENV{REMOTE_ADDR} = "192.168.1.2";
 
-$ua->get_ok( "http://localhost/get_session_variable/logged" );
-$ua->content_contains('VAR_logged=in');
+$res = $ua->get( "http://localhost/get_session_variable/logged" );
+ok +$res->is_success;
+like +$res->content, qr{VAR_logged=in};
 
 done_testing;
