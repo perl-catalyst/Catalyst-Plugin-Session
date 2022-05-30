@@ -46,8 +46,8 @@ my %META = (
   },
   resources => {
     repository => {
-      url => 'git://git.shadowcat.co.uk/catagits/Catalyst-Plugin-Session.git',
-      web => 'http://git.shadowcat.co.uk/gitweb/gitweb.cgi?p=catagits/Catalyst-Plugin-Session.git',
+      url => 'https://github.com/perl-catalyst/Catalyst-Plugin-Session.git',
+      web => 'https://github.com/perl-catalyst/Catalyst-Plugin-Session',
       type => 'git',
     },
     bugtracker => {
