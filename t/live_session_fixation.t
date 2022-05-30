@@ -3,13 +3,13 @@ use warnings;
 
 use Test::Needs {
   'Catalyst::Plugin::Session::State::Cookie' => '0.03',
-  'Test::WWW::Mechanize::Catalyst' => '0.51',
 };
 
 use Test::More;
 
 use lib "t/lib";
-use Test::WWW::Mechanize::Catalyst "SessionTestApp";
+
+use MiniUA;
 
 #try completely random cookie unknown for our application; should be rejected
 my $cookie_name = 'sessiontestapp_session';
@@ -17,7 +17,7 @@ my $cookie_value = '89c3a019866af6f5a305e10189fbb23df3f4772c';
 my ( @injected_cookie ) = ( 1, $cookie_name , $cookie_value ,'/', undef, 0, undef, undef, undef, {} );
 my $injected_cookie_str = "${cookie_name}=${cookie_value}";
 
-my $ua1 = Test::WWW::Mechanize::Catalyst->new;
+my $ua1 = MiniUA->new('SessionTestApp');
 $ua1->cookie_jar->set_cookie( @injected_cookie );
 
 my $res = $ua1->get( "http://localhost/login" );
@@ -64,7 +64,7 @@ is +$res->content, 'VAR_var2=set_after_change';
 #diag "End1".$ua1->get( "http://localhost/dump_session" )->content;
 
 #try to use old cookie value (before session_id_change)
-my $ua2 = Test::WWW::Mechanize::Catalyst->new;
+my $ua2 = MiniUA->new('SessionTestApp');
 $ua2->cookie_jar->set_cookie( @injected_cookie );
 
 #if we take old cookie we should not be able to get any old session data

@@ -11,6 +11,7 @@ my %META = (
     } },
     test => {
       requires => {
+        'Plack::Test' => 0,
         'Test::Deep' => 0,
         'Test::Needs' => 0,
       },
@@ -34,7 +35,6 @@ my %META = (
     },
     develop => {
       requires => {
-        'Test::WWW::Mechanize::PSGI' => 0,
         'Test::Pod' => 0,
         'Test::Pod::Coverage' => 0,
       },

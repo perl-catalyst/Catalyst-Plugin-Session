@@ -3,15 +3,15 @@ use warnings;
 
 use Test::Needs {
   'Catalyst::Plugin::Session::State::Cookie' => '0.03',
-  'Test::WWW::Mechanize::Catalyst' => '0.51',
 };
 
 use Test::More;
 
 use lib "t/lib";
-use Test::WWW::Mechanize::Catalyst "SessionExpiry";
 
-my $ua = Test::WWW::Mechanize::Catalyst->new;
+use MiniUA;
+
+my $ua = MiniUA->new('SessionExpiry');
 
 my $res = $ua->get( "http://localhost/session_data_expires" );
 ok($res->is_success, "session_data_expires");

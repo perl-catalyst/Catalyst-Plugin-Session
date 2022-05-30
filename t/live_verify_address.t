@@ -4,15 +4,15 @@ use warnings;
 use Test::Needs {
   'Catalyst::Plugin::Session::State::Cookie' => '0.03',
   'Catalyst::Plugin::Authentication' => 0,
-  'Test::WWW::Mechanize::Catalyst' => '0.51',
 };
 
 use Test::More;
 
 use lib "t/lib";
-use Test::WWW::Mechanize::Catalyst "SessionTestApp";
 
-my $ua = Test::WWW::Mechanize::Catalyst->new;
+use MiniUA;
+
+my $ua = MiniUA->new('SessionTestApp');
 
 # Test without delete __address
 local $ENV{REMOTE_ADDR} = "192.168.1.1";
@@ -29,7 +29,7 @@ like +$res->content, qr{session variable set};
 
 
 # Change Client
-my $ua2 = Test::WWW::Mechanize::Catalyst->new;
+my $ua2 = MiniUA->new('SessionTestApp');
 $res = $ua2->get( "http://localhost/get_session_variable/logged" );
 ok +$res->is_success;
 like +$res->content, qr{VAR_logged=n\.a\.};

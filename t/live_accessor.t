@@ -3,15 +3,15 @@ use warnings;
 
 use Test::Needs {
   'Catalyst::Plugin::Session::State::Cookie' => '0.03',
-  'Test::WWW::Mechanize::Catalyst' => '0.51',
 };
 
 use Test::More;
 
 use lib "t/lib";
-use Test::WWW::Mechanize::Catalyst "SessionTestApp";
 
-my $ua = Test::WWW::Mechanize::Catalyst->new;
+use MiniUA;
+
+my $ua = MiniUA->new('SessionTestApp');
 
 my $res = $ua->get( '/accessor_test');
 ok +$res->is_success, 'Set session vars okay';

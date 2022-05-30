@@ -3,16 +3,16 @@ use warnings;
 
 use Test::Needs {
   'Catalyst::Plugin::Session::State::Cookie' => '0.03',
-  'Test::WWW::Mechanize::Catalyst' => '0.51',
 };
 
 use Test::More;
 
 use lib "t/lib";
-use Test::WWW::Mechanize::Catalyst "SessionTestApp";
 
-my $ua1 = Test::WWW::Mechanize::Catalyst->new;
-my $ua2 = Test::WWW::Mechanize::Catalyst->new;
+use MiniUA;
+
+my $ua1 = MiniUA->new('SessionTestApp');
+my $ua2 = MiniUA->new('SessionTestApp');
 
 my $res1 = $ua1->get( 'http://localhost/page');
 my $res2 = $ua2->get( 'http://localhost/page');
@@ -87,7 +87,7 @@ ok $_->is_success, 'get main page' for $res1, $res2;
 like $res1->content, qr/please login/, 'ua1 not logged in';
 like $res2->content, qr/please login/, 'ua2 not logged in';
 
-my $ua3 = Test::WWW::Mechanize::Catalyst->new;
+my $ua3 = MiniUA->new('SessionTestApp');
 my $res3 = $ua3->get( 'http://localhost/login');
 ok $res3->is_success, 'log ua3 in';
 $res3 = $ua3->get( 'http://localhost/dump_these_loads_session');
@@ -95,7 +95,7 @@ ok $res3->is_success;
 like $res3->content, qr/NOT/;
 
 
-my $ua4 = Test::WWW::Mechanize::Catalyst->new;
+my $ua4 = MiniUA->new('SessionTestApp');
 my $res4 = $ua4->get( 'http://localhost/page');
 ok $res4->is_success, 'initial get';
 like $res4->content, qr/please login/, 'ua4 not logged in';
