@@ -151,7 +151,7 @@ sub import {
         use Catalyst::Test "SessionStoreTest";
 
         # idiotic void context warning workaround
-        
+
         my $x = get("/create_session");
         $x = get("/recover_session");
         $x = get("/after_session");

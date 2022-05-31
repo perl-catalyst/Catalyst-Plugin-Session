@@ -48,7 +48,7 @@ C<prepare_cookies> is probably the stablest approach.
 =item finalize
 
 Modify the response at to include the session ID if C<sessionid> is defined,
-using whatever scheme you use. For example, set a cookie, 
+using whatever scheme you use. For example, set a cookie.
 
 =back
 
