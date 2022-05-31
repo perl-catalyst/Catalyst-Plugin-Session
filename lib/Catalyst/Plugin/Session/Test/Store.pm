@@ -3,6 +3,9 @@ package Catalyst::Plugin::Session::Test::Store;
 use strict;
 use warnings;
 
+our $VERSION = "0.41";
+$VERSION =~ tr/_//d;
+
 use utf8;
 
 use Test::More;

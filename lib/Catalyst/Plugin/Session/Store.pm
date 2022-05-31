@@ -3,6 +3,9 @@ package Catalyst::Plugin::Session::Store;
 use strict;
 use warnings;
 
+our $VERSION = "0.41";
+$VERSION =~ tr/_//d;
+
 __PACKAGE__;
 
 __END__

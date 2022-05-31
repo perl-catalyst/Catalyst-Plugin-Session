@@ -4,6 +4,9 @@ use base qw/Catalyst::Plugin::Session::Store/;
 use strict;
 use warnings;
 
+our $VERSION = "0.41";
+$VERSION =~ tr/_//d;
+
 my %store;
 
 sub get_session_data {
