@@ -4,7 +4,7 @@ use base qw/Catalyst::Plugin::Session::Store/;
 use strict;
 use warnings;
 
-our $VERSION = "0.41";
+our $VERSION = '0.42';
 $VERSION =~ tr/_//d;
 
 my %store;
