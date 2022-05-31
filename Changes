@@ -1,5 +1,6 @@
 Revision history for Perl extension Catalyst::Plugin::Session
 
+0.42 - 2022-05-31
       - revised packaging
       - correctly specify test prerequisites as test prerequisites
       - drop unused Test::Exception prereq
