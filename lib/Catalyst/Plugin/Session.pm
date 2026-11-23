@@ -620,8 +620,6 @@ sub create_session_id {
     return $sid;
 }
 
-my $counter;
-
 sub session_hash_seed {
     return Crypt::SysRandom::random_bytes( 20 );
 }
